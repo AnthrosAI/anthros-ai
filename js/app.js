@@ -1059,3 +1059,40 @@ function updateRateDisplay() {
 function checkExtremeRate() {}
 function checkGoalWeight() {}
 
+// ── STARTUP SEQUENCE (El motor de arranque) ──────────────────
+window.launchApp = function() {
+  console.log("Iniciando AnthrosAI...");
+ 
+  // 1. Cargar datos guardados del usuario
+  const hasData = loadAppState();
+ 
+  // 2. Ocultar la pantalla de carga si existe en tu HTML
+  const loader = document.getElementById('loadingScreen');
+  if (loader) loader.style.display = 'none';
+ 
+  // 3. Decidir a qué pantalla enviar al usuario
+  if (hasData && window.U && window.U.name) {
+    // Usuario recurrente -> Mostrar el Dashboard (Home)
+    showScreen('main');
+    showPage('dash', document.getElementById('nav-home'));
+  } else {
+    // Usuario nuevo -> Mostrar el Onboarding (Login/Setup)
+    showScreen('onboarding');
+  }
+ 
+  // 4. Actualizar la interfaz con los datos
+  updateDateNav();
+  if (typeof updateMacroDisplay === 'function') updateMacroDisplay();
+  if (typeof renderWater === 'function') renderWater();
+};
+ 
+// ── EL GATILLO ───────────────────────────────────────────────
+// Esto espera a que el HTML, auth.js y nutrition.js estén listos
+window.addEventListener('load', () => {
+  // Le damos medio segundo de respiro para que todo cargue bien
+  setTimeout(() => {
+    if (typeof launchApp === 'function') {
+      launchApp();
+    }
+  }, 500);
+});
