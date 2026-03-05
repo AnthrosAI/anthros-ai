@@ -37,11 +37,11 @@
 
 <div id="loadingScreen" style="position:fixed;inset:0;background:#0C0C10;display:flex;align-items:center;justify-content:center;z-index:99999;flex-direction:column">
   <div style="position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center">
-    <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,#FF8A00,#FF4B4B,#AF52DE,#00D4FF,#34C759,#FF8A00);animation:splashSpin 1.8s linear infinite;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),white calc(100% - 4px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),white calc(100% - 4px))"></div>
+    <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,#FF8A00,#FF4B4B,#AF52DE,#00D4FF,#34C759,#FF8A00);animation:splashSpin 1.8s linear infinite;-webkit-mask:radial-gradient(farthest-side,#0000 calc(100% - 6px),#fff calc(100% - 5px));mask:radial-gradient(farthest-side,#0000 calc(100% - 6px),#fff calc(100% - 5px))"></div>
     <img src="apple-touch-icon.png" style="width:86%;height:86%;border-radius:18px;object-fit:cover;position:relative;z-index:1" alt="AnthrosAI" onerror="this.style.display='none'">
   </div>
   <div style="font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;color:rgba(255,255,255,.4);margin-top:20px;letter-spacing:3px">LOADING</div>
-  <style>@keyframes splashSpin{to{transform:rotate(360deg)}}</style>
+  <style>@keyframes splashSpin{to{transform:rotate(360deg)}} @keyframes rotate{to{transform:rotate(360deg)}}</style>
 </div>
 
 
@@ -134,11 +134,11 @@
       <div class="ob-field-row">
         <div class="ob-group">
           <label class="ob-label">Height (cm)</label>
-          <input class="ob-field" id="f-height" type="number" placeholder="175" min="100" max="250" style="margin-bottom:0">
+          <input class="ob-field" id="f-height" oninput="liveWeightCheck()" type="number" placeholder="175" min="100" max="250" style="margin-bottom:0">
         </div>
         <div class="ob-group">
           <label class="ob-label">Weight (kg)</label>
-          <input class="ob-field" id="f-weight" type="number" placeholder="75" min="30" max="300" style="margin-bottom:0" oninput="liveWeightCheck()">
+          <input class="ob-field" id="f-weight" oninput="liveWeightCheck()" type="number" placeholder="75" min="30" max="300" style="margin-bottom:0" oninput="liveWeightCheck()">
         </div>
       </div>
     </div>
@@ -157,12 +157,12 @@
         <div class="act-example-text" id="actEx">Gym sessions, running, or active jobs like retail.</div>
       </div>
       <div id="actDots" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0">
-        <button onclick="setActivity(Math.max(0,(window.U?window.U.actIdx:2)-1))" style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:10px 22px;color:var(--text);font-size:1.4rem;cursor:pointer;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent">‹</button>
+        <button onclick="setActivity((window.U&&window.U.actIdx!=null?window.U.actIdx:2)-1)" style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:10px 22px;color:var(--text);font-size:1.4rem;cursor:pointer;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent">‹</button>
         <div style="flex:1;text-align:center">
           <div id="actTitle" style="font-weight:800;font-size:.95rem;margin-bottom:5px">Moderately Active</div>
           <div id="actDesc" style="font-size:.7rem;color:var(--muted2);line-height:1.5">3–5 days exercise or moderate-intensity job.</div>
         </div>
-        <button onclick="setActivity(Math.min(5,(window.U?window.U.actIdx:2)+1))" style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:10px 22px;color:var(--text);font-size:1.4rem;cursor:pointer;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent">›</button>
+        <button onclick="setActivity((window.U&&window.U.actIdx!=null?window.U.actIdx:2)+1)" style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:10px 22px;color:var(--text);font-size:1.4rem;cursor:pointer;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent">›</button>
       </div>
     </div>
 
@@ -196,7 +196,7 @@
       </div>
 
       <label class="ob-label">Goal Weight (kg)</label>
-      <input class="ob-field" id="f-goalwt" type="number" placeholder="e.g. 70" min="30" max="300" oninput="checkGoalWeight()">
+      <input class="ob-field" id="f-goalwt" oninput="checkGoalWeight()" type="number" placeholder="e.g. 70" min="30" max="300" oninput="checkGoalWeight()">
       <div class="ob-error-msg" id="goalWtError">⚠️ This goal weight would put your BMI below the safe range (18.5). Please set a healthier target.</div>
       <div class="ob-warning-msg" id="goalWtWarn">⚠️ This goal is above the healthy BMI range. Consider targeting a BMI between 18.5–24.9 for best health outcomes.</div>
     </div>
@@ -211,7 +211,7 @@
         <div style="font-family:var(--ff-display);font-size:0.8rem;font-weight:700;color:var(--muted2);text-align:center;margin-bottom:12px;letter-spacing:0.5px;text-transform:uppercase">Weekly Goal Rate</div>
         <div class="rate-stepper">
           <button class="rate-btn" onclick="changeRate(-1)">−</button>
-          <div class="rate-val" id="rateVal">−0.50 kg/week</div>
+          <div class="rate-val" id="rateDisplay" style="display:none">−0.50 kg/week</div>
           <button class="rate-btn" onclick="changeRate(1)">+</button>
         </div>
         <div class="ob-warning-msg" id="rateWarn" style="margin-bottom:0">⚠️ Extreme rate. This creates a very large deficit. Please consult a dietitian before starting.</div>
@@ -5077,7 +5077,7 @@ if ('serviceWorker' in navigator) {
 
 
 <!-- ═══ LEFT SIDEBAR (Hamburger Menu) ════════════════════ -->
-<div id="sidebarOverlay" style="position:fixed;inset:0;z-index:8000;display:none">
+<div id="sidebarOverlay" style="position:fixed;inset:0;z-index:9500;display:none">
   <!-- Backdrop -->
   <div onclick="closeSidebar()" style="position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)"></div>
   <!-- Panel -->
