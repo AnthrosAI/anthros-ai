@@ -4326,7 +4326,7 @@ function renderScanResult(r) {
         (r.tip ? '<div class="scan-tip-box">💡 ' + r.tip + '</div>' : '') +
         '<div style="font-size:.8rem;font-weight:700;margin-bottom:8px">Add to meal:</div>' +
         '<div class="scan-add-meal-grid">' +
-          '<button class="scan-meal-btn" onclick="logScannedFoodTo(\"Breakfast\")">🌅 Breakfast</button>
+          '<button class="scan-meal-btn" onclick="logScannedFoodTo(\'Breakfast\')">🌅 Breakfast</button>'
     <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
       <div style="font-size:.65rem;font-weight:700;color:var(--muted2);letter-spacing:.8px;margin-bottom:8px">⚡ EXERCISE LIBRARY</div>
       <div class="workout-search-wrap">
@@ -5294,8 +5294,7 @@ function openSupplementDashboard() {
         '<div style="width:36px;height:36px;border-radius:10px;background:' + (s.color||'var(--cal)') + '20;display:flex;align-items:center;justify-content:center;font-size:1.1rem">💊</div>' +
         '<div style="flex:1"><div style="font-weight:700;font-size:.85rem;color:' + (s.color||'var(--text)') + '">' + s.name + '</div>' +
         '<div style="font-size:.7rem;color:var(--muted2)">' + s.dose + '</div></div>' +
-        '<button onclick="toggleSupp('' + s.id + '');openSupplementDashboard()" style="background:' + (s.taken?'var(--cal)':'var(--card)') + ';border:1.5px solid ' + (s.taken?'var(--cal)':'var(--border)') + ';border-radius:10px;padding:6px 14px;color:' + (s.taken?'black':'var(--text)') + ';font-size:.78rem;font-weight:700;cursor:pointer">' +
-        (s.taken ? '✓ Done' : 'Take') + '</button></div>';
+        '<button onclick="toggleSupp(\'' + s.id + '\');openSupplementDashboard()" style="background:' + (s.taken?'var(--cal)':'var(--card)') + ';border:1.5px solid ' + (s.taken?'var(--cal)':'var(--border)') + ';border-radius:10px;padding:6px 14px;color:' + (s.taken?'black':'var(--text)') + ';font-size:.78rem;font-weight:700;cursor:pointer">' + (s.taken ? '✓ Done' : 'Take') + '</button></div>';
     }).join('');
 }
 window.openSupplementDashboard = openSupplementDashboard;
