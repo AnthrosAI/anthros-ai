@@ -1,7 +1,7 @@
-// AnthrosAI Service Worker — v9
+// AnthrosAI Service Worker — v10
 // Network-first for API, Cache-first for assets, auto-clears old caches
 
-const SW_VERSION = 'anthros-v9';
+const SW_VERSION = 'anthros-v10';
 const CACHE_NAME = `anthros-cache-${SW_VERSION}`;
 const STATIC_ASSETS = [
   '/', '/index.html', '/manifest.json',
