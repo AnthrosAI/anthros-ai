@@ -6,7 +6,7 @@
 'use strict';
 
 // ── CONSTANTS ──────────────────────────────────────────────
-const GROQ_KEY  = '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';
+const GROQ_KEY = '';
 const GROQ_URL  = 'https://api.groq.com/openai/v1/chat/completions';
 const GROQ_MODEL = 'llama-3.3-70b-versatile';
 const AI_FREE_LIMIT = 5;
@@ -148,6 +148,10 @@ function changeDay(delta) {
 
 // ── MACRO DISPLAY ──────────────────────────────────────────
 function updateMacroDisplay() {
+  // Update net calories
+  if (typeof calcNetCalories === 'function') setTimeout(calcNetCalories, 0);
+  // Update net consumed display
+  var ncEl = document.getElementById('netConsumed'); if (ncEl) ncEl.textContent = Math.round(window.totalCals||0);
   const ids = { cal:'dashCal', pro:'dashPro', carb:'dashCarb', fat:'dashFat' };
   const vals = { cal:totalCals, pro:totalPro, carb:totalCarb, fat:totalFat };
   const goals = { cal:U.calories||2000, pro:U.protein||150, carb:U.carbs||200, fat:U.fats||60 };
@@ -1066,87 +1070,231 @@ function checkGoalWeight() {}
 // Exposes every function to window so HTML onclick="" attributes
 // work across all JS modules regardless of load order.
 // ═══════════════════════════════════════════════════════════
-(function bindGlobalScope() {
-  const fns = [
-    // ── app.js ──────────────────────────────────────────
-    'showScreen','showPage','showToast','renderDashboard',
-    'updateDateNav','changeDay','updateMacroDisplay',
-    'renderWater','addWater','setMood','renderMoodTracker',
-    'buildSysPrompt','addAiMsg','addUsrMsg','addTyping','sendMsg','quickAsk',
-    'openChatSidebar','closeChatSidebar','renderChatHistory',
-    'newChatSession','saveChatSession','loadChatSession',
-    'openFAB','closeFAB','openFABOption',
-    'addNote','closeNoteModal','saveNote','renderNotesList',
-    'openWeightLog','closeWeightModal','saveWeightLog','renderWeightHistory',
-    'openPhotoLog','closePhotoLog','previewPhotoLog','savePhotoLog','renderPhotoHistory',
-    'openSleepLog','showSleepPage','setSleepQuality','logSleep',
-    'updateSleepStats','renderSleepHistory',
-    'initStepsWidget','renderStepsWidget','addSteps','manualStepsInput',
-    'saveStepsState','startMotionStepCount',
-    'openDevicesModal','closeDevicesModal','connectDevice',
-    'renderProgress','renderProgressCharts',
-    'renderWeightLineChart','renderStepsLineChart','renderWeeklyChart',
-    'openFastModal','closeFastModal','openFastPage','toggleFast',
-    'startFast','resetFast','updateFastTimer','updateFastDisplay',
-    'openDailyReport','closeDailyReport','renderDailyReport','toggleDrSection',
-    'requestNotifications','scheduleSmartNotifications','fireNotif','updateNotifStatus',
-    'openNotificationsModal','closeNotificationsModal',
-    'openPrivacyModal','closePrivacyModal',
-    'initMorePage','initProfilePage','handleLogout','logoutApp',
-    'saveProfileField','toggleEdit','cancelEdit','recalc','refreshPlanNums',
-    'checkPaymentReturn','onProActivated','calculateBMI',
-    'liveWeightCheck','showSetupInstructions','resendEmail',
-    'selGender','selGoal','setActivity','selPlan','changeRate',
-    'updateRateDisplay','checkExtremeRate','checkGoalWeight',
-    'closeFood','closeFoodModal2','renderSupplements','toggleSupp',
-    'saveAppState','loadAppState',
-    // ── auth.js ─────────────────────────────────────────
-    'calculateMacros','launchApp','initApp',
-    'validateStep','obUpdateUI','obNext','obBack','obSkip','toggleTnc',
-    // ── stripe.js ───────────────────────────────────────
-    'getStripe','selectPlan','openPaywall','closePaywall',
-    'startCheckout','activatePro','injectAdSense',
-    // ── nutrition.js ────────────────────────────────────
-    'updateMacroDisplay','renderMealBlocks','renderWater',
-    'logFood','selMealTab','selMealTabByName',
-    'openFoodModal','closeFoodModal',
-    'renderFoodDB','switchFoodsTab','setFoodCat','foodsPageFilter',
-    'quickLogFood','toggleFavorite','renderFavorites',
-    'openSuggestFood','closeSuggestFood','getSuggestions','toggleSFFilter',
-    'qf','buildNutrGrid','toggleNutrLib','filterNutr',
-    'toggleNutrAccordion','openNutrDetail','closeNutrModal','renderDV',
-    'openAIAnalyzer','closeAIAnalyzer','scanFoodByText','analyzeFood',
-    'logScannedFoodTo','logAnalyzedFood',
-    'openFoodScanner','closeFoodScanner','onScanFileChange',
-    'runFoodScan','parseScan','renderScanResult','logScannedFood',
-    'fetchEdamam','fetchEdamamNutrition','onFoodSearch',
-    'renderFoodSearchResults','selectSearchFood',
-    'openFoodSearch','openFoodSearchModal',
-    'filterFoodDB','filterFoodCat',
-    'quickAddFoodByIdx','quickAddFromDB','createCustomFood',
-    'toggleMealSection','openNutrMenu','rm','addNutrToDiary',
-    // ── workout.js ──────────────────────────────────────
-    'renderWorkoutPage','updateWorkoutStats','filterWorkout',
-    'renderExerciseLibrary','searchExercises','quickAddFromLibrary',
-    'renderExercises','toggleEx','saveExercise',
-    'openExerciseLog','closeExerciseModal',
-    'removeExercise','toggleSet','quickAddExercise',
+
+// ═══════════════════════════════════════════════════════════
+// GLOBAL SCOPE — Direct window assignments for HTML onclick
+// Runs after all modules parse. Safe to call before DOM ready.
+// ═══════════════════════════════════════════════════════════
+function _bindAllToWindow() {
+  const fns = ['activatePro',
+    'addAiMsg',
+    'addNote',
+    'addNutrToDiary',
+    'addSteps',
+    'addTyping',
+    'addUsrMsg',
+    'addWater',
+    'analyzeFood',
+    'bindGlobalScope',
+    'buildNutrGrid',
+    'buildSysPrompt',
+    'calculateBMI',
+    'calculateMacros',
+    'cancelEdit',
+    'changeDay',
+    'changeRate',
+    'checkExtremeRate',
+    'checkGoalWeight',
+    'checkPaymentReturn',
+    'closeAIAnalyzer',
+    'closeChatSidebar',
+    'closeDailyReport',
+    'closeDevicesModal',
+    'closeExerciseModal',
+    'closeFAB',
+    'closeFastModal',
+    'closeFood',
+    'closeFoodModal',
+    'closeFoodModal2',
+    'closeFoodScanner',
+    'closeNoteModal',
+    'closeNotificationsModal',
+    'closeNutrModal',
+    'closePaywall',
+    'closePhotoLog',
+    'closePrivacyModal',
+    'closeSuggestFood',
+    'closeWeightModal',
+    'connectDevice',
+    'createCustomFood',
+    'fetchEdamam',
+    'fetchEdamamNutrition',
+    'filterFoodCat',
+    'filterFoodDB',
+    'filterNutr',
+    'filterWorkout',
+    'fireNotif',
+    'foodsPageFilter',
+    'getStripe',
+    'getSuggestions',
+    'handleLogout',
+    'initApp',
+    'initMorePage',
+    'initNutritionPage',
+    'initProfilePage',
+    'initStepsWidget',
+    'injectAdSense',
+    'injectMainAds',
+    'launchApp',
+    'liveWeightCheck',
+    'loadAppState',
+    'loadChatSession',
+    'logAnalyzedFood',
+    'logFood',
+    'logScannedFood',
+    'logScannedFoodTo',
+    'logSleep',
+    'logoutApp',
+    'manualStepsInput',
+    'newChatSession',
+    'obBack',
+    'obNext',
+    'obSkip',
+    'obUpdateUI',
+    'onFoodSearch',
+    'onProActivated',
+    'onScanFileChange',
+    'openAIAnalyzer',
+    'openChatSidebar',
+    'openDailyReport',
+    'openDevicesModal',
+    'openExerciseLog',
+    'openFAB',
+    'openFABOption',
+    'openFastModal',
+    'openFastPage',
+    'openFoodModal',
+    'openFoodScanner',
+    'openFoodSearch',
+    'openFoodSearchModal',
+    'openNotificationsModal',
+    'openNutrDetail',
+    'openNutrMenu',
+    'openPaywall',
+    'openPhotoLog',
+    'openPrivacyModal',
+    'openSleepLog',
+    'openSuggestFood',
+    'openWeightLog',
+    'parseScan',
+    'previewPhotoLog',
+    'qf',
+    'quickAddExercise',
+    'quickAddFoodByIdx',
+    'quickAddFromDB',
+    'quickAddFromLibrary',
+    'quickAsk',
+    'quickLogFood',
+    'recalc',
+    'refreshPlanNums',
+    'removeExercise',
+    'renderChatHistory',
+    'renderDV',
+    'renderDailyReport',
+    'renderDashboard',
+    'renderExerciseLibrary',
+    'renderExercises',
+    'renderFavorites',
+    'renderFoodDB',
+    'renderFoodSearchResults',
+    'renderMealBlocks',
+    'renderMoodTracker',
+    'renderNotesList',
+    'renderPhotoHistory',
+    'renderProgress',
+    'renderProgressCharts',
+    'renderScanResult',
+    'renderSleepHistory',
+    'renderStepsLineChart',
+    'renderStepsWidget',
+    'renderSupplements',
+    'renderWater',
+    'renderWeeklyChart',
+    'renderWeightHistory',
+    'renderWeightLineChart',
+    'renderWorkoutPage',
+    'requestNotifications',
+    'resendEmail',
+    'resetFast',
+    'rm',
+    'runFoodScan',
+    'saveAppState',
+    'saveChatSession',
+    'saveExercise',
+    'saveNote',
+    'savePhotoLog',
+    'saveProfileField',
+    'saveStepsState',
+    'saveWeightLog',
+    'scanFoodByText',
+    'scheduleSmartNotifications',
+    'searchExercises',
+    'selGender',
+    'selGoal',
+    'selMealTab',
+    'selMealTabByName',
+    'selPlan',
+    'selectPlan',
+    'selectSearchFood',
+    'sendMsg',
+    'setActivity',
+    'setFoodCat',
+    'setMood',
+    'setSleepQuality',
+    'showPage',
+    'showScreen',
+    'showSetupInstructions',
+    'showSleepPage',
+    'showToast',
+    'startCheckout',
+    'startFast',
+    'startMotionStepCount',
+    'switchFoodsTab',
+    'toggleDrSection',
+    'toggleEdit',
+    'toggleEx',
+    'toggleFast',
+    'toggleFavorite',
+    'toggleMealSection',
+    'toggleNutrAccordion',
+    'toggleNutrLib',
+    'toggleSFFilter',
+    'toggleSet',
+    'toggleSupp',
+    'toggleTnc',
+    'updateDateNav',
+    'updateFastDisplay',
+    'updateFastTimer',
+    'updateMacroDisplay',
+    'updateNotifStatus',
+    'updateRateDisplay',
+    'updateSleepStats',
+    'updateWorkoutStats',
+    'validateStep'
   ];
-  fns.forEach(name => {
-    if (typeof window[name] === 'undefined') {
-      // Function may be defined in another module — create a lazy proxy
-      Object.defineProperty(window, name, {
-        get() {
-          // Walk scope chain at call time (module functions are in global scope)
-          return typeof eval('typeof ' + name) !== 'undefined'
-            ? eval(name)
-            : function() { console.warn('[AnthrosAI] not yet loaded: ' + name); };
-        },
-        configurable: true
-      });
-    }
+  fns.forEach(function(name) {
+    try {
+      // eslint-disable-next-line no-eval
+      var fn = eval(name);
+      if (typeof fn === 'function') window[name] = fn;
+    } catch(e) {}
   });
-})();
+  // Explicit aliases for commonly missing ones
+  window.openLogSleep   = window.openSleepLog   || function(){};
+  window.showDatePicker = window.updateDateNav   || function(){};
+  window.initNutritionPage = function() {
+    if (typeof buildNutrGrid === 'function') {
+      var g = document.getElementById('nlGrid');
+      var c = document.getElementById('nlCollapse');
+      if (g && g.children.length === 0) buildNutrGrid(typeof NUTRIENTS !== 'undefined' ? NUTRIENTS : []);
+      if (c && (c.style.display === 'none' || !c.style.display)) {
+        c.style.display = 'block';
+        var tog = document.getElementById('nlToggle');
+        if (tog) tog.textContent = '▴';
+      }
+    }
+  };
+}
 
 // ── Stub stubs for missing inline handlers ──────────────────
 window.openLogSleep  = function() { openSleepLog(); };
@@ -1192,6 +1340,9 @@ window.injectMainAds = injectMainAds;
 // BOOT — Single entry point. Runs after all modules load.
 // ═══════════════════════════════════════════════════════════
 function _anthrosBoot() {
+  // Bind all module functions to window FIRST
+  _bindAllToWindow();
+
   try {
     // 1. Restore persisted state
     const restored = loadAppState();
@@ -1256,3 +1407,42 @@ function _anthrosBoot() {
 window.addEventListener('load', function() {
   setTimeout(_anthrosBoot, 300);
 });
+
+// ── NET CALORIES (consumed - burned) ──────────────────────
+function calcNetCalories() {
+  var burned = calcCaloriesBurned();
+  var net = (totalCals || 0) - burned;
+  window._netCalories = net;
+  window._caloriesBurned = burned;
+  // Update net display if element exists
+  var netEl = document.getElementById('netCalDisplay');
+  if (netEl) netEl.textContent = net;
+  var burnEl = document.getElementById('burnedDisplay');
+  if (burnEl) burnEl.textContent = burned;
+  // Update calorie ring to reflect NET
+  var ringNum = document.getElementById('ringNum');
+  if (ringNum) ringNum.textContent = totalCals;
+  var ringFill = document.getElementById('ringCalFill');
+  if (ringFill && U.calories) {
+    var pct = Math.min(1, totalCals / U.calories);
+    ringFill.style.strokeDashoffset = 314 * (1 - pct);
+  }
+  return net;
+}
+window.calcNetCalories = calcNetCalories;
+
+function calcCaloriesBurned() {
+  var workoutBurn = (exercises || []).reduce(function(sum, ex) {
+    var sets = Array.isArray(ex.sets) ? ex.sets : [];
+    var doneSets = sets.filter(function(s){ return s.done; }).length;
+    // Rough: ~50 kcal per completed set (adjustable)
+    return sum + doneSets * 50;
+  }, 0);
+  var stepsBurn = Math.round((_stepsToday || 0) * 0.04); // ~0.04 kcal/step
+  return workoutBurn + stepsBurn;
+}
+window.calcCaloriesBurned = calcCaloriesBurned;
+
+window.showPage = showPage;
+window.showScreen = showScreen;
+window.showToast = showToast;
