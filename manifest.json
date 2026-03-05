@@ -1,31 +1,21 @@
 {
-  "name": "AnthrosAI Fitness",
+  "name": "AnthrosAI — AI Fitness Coach",
   "short_name": "AnthrosAI",
-  "description": "AI-powered fitness & bio-tracking companion",
+  "description": "Your personal AI-powered nutrition and training coach.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0C0C10",
   "theme_color": "#0C0C10",
   "orientation": "portrait",
-  "scope": "/",
   "icons": [
-    {
-      "src": "apple-touch-icon.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "apple-touch-icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "apple-touch-icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ]
+    { "src": "/apple-touch-icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/apple-touch-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["health", "fitness", "lifestyle"],
+  "screenshots": [],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": { "title": "title", "text": "text", "url": "url" }
+  }
 }
