@@ -2040,3 +2040,25 @@ body { padding-top: env(safe-area-inset-top, 0px); }
   margin:14px 0;border-radius:15px;overflow:hidden;
   background:var(--card);border:1px solid var(--border);
 }
+
+/* ══ V9 FIXES ════════════════════════════════════════════ */
+@keyframes splashSpin { to { transform: rotate(360deg); } }
+@keyframes rotate      { to { transform: rotate(360deg); } }
+#sidebarOverlay { z-index: 9500 !important; }
+#sidebarPanel   { z-index: 9501 !important; }
+.ob-warning-msg {
+  display: none;
+  background: rgba(255,59,59,.12);
+  border: 1px solid rgba(255,59,59,.35);
+  color: #FF5E5E;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: .78rem;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+.ob-warning-msg.show { display: block; }
+.goal-btn { cursor:pointer; transition:all .18s; -webkit-tap-highlight-color:transparent; user-select:none; }
+.goal-btn.sel { background:var(--cal) !important; border-color:var(--cal) !important; color:#000 !important; }
+.gender-btn { cursor:pointer; transition:all .18s; -webkit-tap-highlight-color:transparent; }
+.gender-btn.sel { background:var(--cal) !important; border-color:var(--cal) !important; color:#000 !important; }
