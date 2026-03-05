@@ -1,0 +1,16 @@
+{
+  "name": "anthros-ai",
+  "version": "2.0.0",
+  "description": "AnthrosAI — AI-powered fitness & bio-tracking PWA",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "stripe": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
