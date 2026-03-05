@@ -1,2 +1,0 @@
-# anthros-ai
-Alfa Version
