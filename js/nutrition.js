@@ -1,3 +1,4 @@
+let _edamamSearchTimer = null;
 /**
  * AnthrosAI — nutrition.js
  * Food tracking, AI scanner, Edamam search, encyclopedia
@@ -579,7 +580,7 @@ async function scanFoodByText() {
     var prompt = 'Estimate nutrition for: "' + food + '". Reply ONLY with valid JSON, no markdown: {"food_name":"","serving":"","calories":0,"protein_g":0,"carbs_g":0,"fat_g":0,"fiber_g":0,"confidence":"medium","notes":""}';
     var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer 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' },
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' },
       body: JSON.stringify({ model: 'llama-3.3-70b-versatile', max_tokens: 300, temperature: 0.1,
         messages: [{ role: 'system', content: 'You are a nutrition expert. Return ONLY valid JSON, no markdown.' }, { role: 'user', content: prompt }] })
     });
@@ -625,7 +626,7 @@ async function analyzeFood(input) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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'
+          'Authorization': 'Bearer '
         },
         body: JSON.stringify({
           model: 'meta-llama/llama-4-scout-17b-16e-instruct',
@@ -736,7 +737,7 @@ async function runFoodScan() {
   try {
     var res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer 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'},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '},
       body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:200,temperature:0.2,
         messages:[
           {role:'system',content:'Nutrition expert. Always reply in the exact format. Be precise.'},
@@ -1008,3 +1009,63 @@ function toggleMealSection(meal) {
   if (chev) chev.textContent = visible ? '›' : '▾';
 }
 
+
+
+// ── Window bindings ──
+window.renderFoodDB = renderFoodDB;
+window.switchFoodsTab = switchFoodsTab;
+window.quickAddFromDB = quickAddFromDB;
+window.openAIAnalyzer = openAIAnalyzer;
+window.onScanFileChange = onScanFileChange;
+window.qf = qf;
+window.renderMealBlocks = renderMealBlocks;
+window.selMealTabByName = selMealTabByName;
+window.analyzeFood = analyzeFood;
+window.onFoodSearch = onFoodSearch;
+window.closeNutrModal = closeNutrModal;
+window.filterFoodCat = filterFoodCat;
+window.toggleNutrLib = toggleNutrLib;
+window.runFoodScan = runFoodScan;
+window.closeAIAnalyzer = closeAIAnalyzer;
+window.scanFoodByText = scanFoodByText;
+window.openDailyReport = openDailyReport;
+window.renderScanResult = renderScanResult;
+window.foodsPageFilter = foodsPageFilter;
+window.logFood = logFood;
+window.parseScan = parseScan;
+window.toggleMealSection = toggleMealSection;
+window.quickAddFoodByIdx = quickAddFoodByIdx;
+window.openNutrMenu = openNutrMenu;
+window.toggleNutrAccordion = toggleNutrAccordion;
+window.buildNutrGrid = buildNutrGrid;
+window.renderDV = renderDV;
+window.closeFoodScanner = closeFoodScanner;
+window.closeFoodModal = closeFoodModal;
+window.filterNutr = filterNutr;
+window.fetchEdamam = fetchEdamam;
+window.logAnalyzedFood = logAnalyzedFood;
+window.logScannedFood = logScannedFood;
+window.renderFavorites = renderFavorites;
+window.renderWater = renderWater;
+window.openFoodSearch = openFoodSearch;
+window.addNutrToDiary = addNutrToDiary;
+window.createCustomFood = createCustomFood;
+window.openFoodScanner = openFoodScanner;
+window.openFoodSearchModal = openFoodSearchModal;
+window.logScannedFoodTo = logScannedFoodTo;
+window.selectSearchFood = selectSearchFood;
+window.openNutrDetail = openNutrDetail;
+window.getSuggestions = getSuggestions;
+window.rm = rm;
+window.toggleFavorite = toggleFavorite;
+window.updateMacroDisplay = updateMacroDisplay;
+window.openFoodModal = openFoodModal;
+window.renderFoodSearchResults = renderFoodSearchResults;
+window.selMealTab = selMealTab;
+window.openSuggestFood = openSuggestFood;
+window.fetchEdamamNutrition = fetchEdamamNutrition;
+window.closeSuggestFood = closeSuggestFood;
+window.filterFoodDB = filterFoodDB;
+window.setFoodCat = setFoodCat;
+window.toggleSFFilter = toggleSFFilter;
+window.quickLogFood = quickLogFood;
