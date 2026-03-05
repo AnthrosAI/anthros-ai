@@ -5,38 +5,86 @@
 
 'use strict';
 
-function calculateMacros() {
-  const { age, gender, height, weight, actIdx } = U;
-  const bmr = gender === 'male'
-    ? 10*weight + 6.25*height - 5*(age||22) + 5
-    : 10*weight + 6.25*height - 5*(age||22) - 161;
-
-  const tdee = Math.round(bmr * (ACTIVITY[actIdx||2].mult));
-  U.tdee = tdee;
-
-  const weeklyRate = RATES[rateStepIdx];
-  const dailyDelta = Math.round(weeklyRate * 7700 / 7);
-  U.calories = Math.max(1200, Math.round(tdee + dailyDelta));
-
-  U.protein = Math.round(weight * 2.2);
-  U.fats = Math.round(U.calories * 0.25 / 9);
-  U.carbs = Math.max(0, Math.round((U.calories - U.protein*4 - U.fats*9) / 4));
-
-  const hm = height / 100;
-  U.bmi = Math.round((weight / (hm*hm)) * 10) / 10;
-
-  const diff = Math.abs((U.goalWeight||weight) - weight);
-  const absRate = Math.abs(weeklyRate) || 0.5;
-  U.timeline = diff > 0 ? Math.round(diff / absRate) : 0;
+// ── CONSTANTS (self-contained so auth.js works without app.js) ──
+var _ACT_MULT  = [1.2, 1.375, 1.465, 1.55, 1.725, 1.9];
+var _ACT_NAMES = ['Sedentary','Lightly Active','Moderately Active','Active','Very Active','Athlete'];
+var _ACT_DESCS = [
+  'Desk job, no exercise.',
+  'Light exercise 1-3 days/week or daily walking.',
+  '3-5 days exercise or moderate-intensity job.',
+  'Hard exercise 6-7 days/week or physical job.',
+  'Very hard exercise daily, or two-a-days.',
+  'Professional athlete or extreme training.'
+];
+var _RATES = [-1.0, -0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75, 1.0];
+// Also expose as globals for app.js references
+if (typeof window !== 'undefined') {
+  window._ACT_MULT  = _ACT_MULT;
+  window._ACT_NAMES = _ACT_NAMES;
+  window._ACT_DESCS = _ACT_DESCS;
+  window._RATES     = _RATES;
 }
+
+function calculateMacros() {
+  var age    = window.U.age    || 22;
+  var gender = window.U.gender || 'male';
+  var height = window.U.height || 175;
+  var weight = window.U.weight || 75;
+  var actIdx = window.U.actIdx != null ? window.U.actIdx : 2;
+
+  // Mifflin-St Jeor BMR
+  var bmr = gender === 'male'
+    ? 10*weight + 6.25*height - 5*age + 5
+    : 10*weight + 6.25*height - 5*age - 161;
+
+  var mult = _ACT_MULT[Math.max(0, Math.min(5, actIdx))] || 1.465;
+  var tdee = Math.round(bmr * mult);
+  window.U.tdee = tdee;
+
+  // Rate: use rateStepIdx if defined, else rateIdx on U
+  var rsi  = (typeof window.rateStepIdx !== 'undefined') ? window.rateStepIdx
+           : (window.U.rateIdx != null ? window.U.rateIdx : 4);
+  var weeklyRateRaw = _RATES[Math.max(0, Math.min(_RATES.length-1, rsi))] || 0;
+
+  // Flip sign for bulk goal
+  var weeklyRate = weeklyRateRaw;
+  if (window.U.goal === 'bulk' && weeklyRate <= 0) weeklyRate = Math.abs(weeklyRate) || 0.25;
+  if (window.U.goal === 'cut'  && weeklyRate >= 0) weeklyRate = -(Math.abs(weeklyRate) || 0.25);
+  if (window.U.goal === 'maintain') weeklyRate = 0;
+
+  var dailyDelta = Math.round(weeklyRate * 7700 / 7);
+  window.U.calories = Math.max(1200, Math.round(tdee + dailyDelta));
+
+  window.U.protein = Math.round(weight * 2.2);
+  window.U.fats    = Math.round(window.U.calories * 0.25 / 9);
+  window.U.carbs   = Math.max(0, Math.round((window.U.calories - window.U.protein*4 - window.U.fats*9) / 4));
+
+  var hm = height / 100;
+  window.U.bmi = Math.round((weight / (hm*hm)) * 10) / 10;
+
+  var diff    = Math.abs((window.U.goalWeight||weight) - weight);
+  var absRate = Math.abs(weeklyRate) || 0.5;
+  window.U.timeline = diff > 0 ? Math.round(diff / absRate) : 0;
+
+  // Sync app.js globals if they exist
+  if (typeof rateStepIdx !== 'undefined') window.rateStepIdx = rsi;
+}
+window.calculateMacros = calculateMacros;
 
 
 function launchApp() {
-  if (!window.U.name) window.U.name = 'Athlete';
-  if (!window.U.height) { window.U.height=175; window.U.weight=75; window.U.goalWeight=70; window.U.age=22; }
-  if (typeof calculateMacros === 'function') calculateMacros();
+  window.U = window.U || {};
+  if (!window.U.name)       window.U.name       = 'Athlete';
+  if (!window.U.height)     window.U.height     = 175;
+  if (!window.U.weight)     window.U.weight     = 75;
+  if (!window.U.goalWeight) window.U.goalWeight = window.U.weight - 5;
+  if (!window.U.age)        window.U.age        = 22;
+  if (window.U.actIdx == null) window.U.actIdx  = 2;
+  calculateMacros();
+  if (typeof saveAppState === 'function') saveAppState();
   if (typeof showScreen === 'function') showScreen('app');
-  if (typeof initApp === 'function') initApp();
+  if (typeof showPage === 'function') showPage('dash', document.getElementById('nav-dash'));
+  if (typeof initApp === 'function') setTimeout(initApp, 50);
 }
 window.launchApp = launchApp;
 
@@ -207,19 +255,129 @@ window.calculateMacros = calculateMacros;
 
 
 function setActivity(n) {
-  n = Math.max(0, Math.min(5, parseInt(n) || 0));
+  n = Math.max(0, Math.min(5, parseInt(n, 10)));
+  if (isNaN(n)) n = 2;
   window.U.actIdx = n;
-  // Update arrow selector labels
-  var actNames = ['Sedentary', 'Lightly Active', 'Moderately Active', 'Active', 'Very Active', 'Athlete'];
-  var actDescs = ['Desk job, no exercise. Minimal movement throughout the day.', 'Light exercise 1-3 days/week or daily walking.', '3-5 days exercise or moderate-intensity job.', 'Hard exercise 6-7 days/week or physical job.', 'Very hard exercise daily, or two-a-days.', 'Professional athlete or extremely intense training.'];
+
   var titleEl = document.getElementById('actArrowTitle') || document.getElementById('actTitle');
   var descEl  = document.getElementById('actArrowDesc')  || document.getElementById('actDesc');
-  if (titleEl) titleEl.textContent = actNames[n] || actNames[2];
-  if (descEl)  descEl.textContent  = actDescs[n] || actDescs[2];
-  // Legacy dots (if still present)
+  if (titleEl) titleEl.textContent = _ACT_NAMES[n];
+  if (descEl)  descEl.textContent  = _ACT_DESCS[n];
+
+  // Legacy dots highlight
   document.querySelectorAll('.activity-dot').forEach(function(d, i) {
     d.classList.toggle('sel', i === n);
   });
   if (typeof recalc === 'function') recalc();
 }
 window.setActivity = setActivity;
+function selGoal(g) {
+  // Accept either a string or a DOM element (onclick="selGoal(this)")
+  var val = (typeof g === 'string') ? g : (g && g.dataset ? g.dataset.val : g);
+  if (!val) return;
+  window.U.goal = val;
+  document.querySelectorAll('.goal-btn').forEach(function(b) {
+    b.classList.toggle('sel', b.dataset.val === val);
+  });
+  if (typeof recalc === 'function') recalc();
+}
+window.selGoal = selGoal;
+function selGender(g) {
+  var val = (typeof g === 'string') ? g : (g && g.dataset ? g.dataset.val : g);
+  if (!val) return;
+  window.U.gender = val;
+  document.querySelectorAll('.gender-btn').forEach(function(b) {
+    b.classList.toggle('sel', b.dataset.val === val);
+  });
+  if (typeof recalc === 'function') recalc();
+}
+window.selGender = selGender;
+function checkGoalWeight() {
+  var gw  = parseFloat((document.getElementById('f-goalwt') || {}).value) || 0;
+  var h   = window.U.height || 175;
+  var err = document.getElementById('goalWtError');
+  if (!gw || !h) { if (err) err.classList.remove('show'); return; }
+  var hm  = h / 100;
+  var bmi = gw / (hm * hm);
+  var msg = '';
+  if (bmi < 16)        msg = '⚠️ This goal weight gives a BMI of ' + bmi.toFixed(1) + ' — dangerously underweight.';
+  else if (bmi < 18.5) msg = '⚠️ BMI ' + bmi.toFixed(1) + ' — this is underweight. Consider a safer goal.';
+  else if (bmi > 35)   msg = '⚠️ BMI ' + bmi.toFixed(1) + ' — this goal is in the obese range.';
+  else if (bmi > 30)   msg = '⚠️ BMI ' + bmi.toFixed(1) + ' — slightly above healthy range (18.5–25).';
+  if (err) {
+    err.textContent = msg;
+    err.classList.toggle('show', msg !== '');
+  }
+  if (gw > 0) {
+    window.U.goalWeight = gw;
+    if (typeof recalc === 'function') recalc();
+  }
+}
+window.checkGoalWeight = checkGoalWeight;
+function liveWeightCheck() {
+  var w = parseFloat((document.getElementById('f-weight') || {}).value) || 0;
+  var h = parseFloat((document.getElementById('f-height') || {}).value) || 0;
+  if (w) window.U.weight = w;
+  if (h) window.U.height = h;
+  if (w && h) {
+    if (typeof calculateMacros === 'function') calculateMacros();
+  }
+}
+window.liveWeightCheck = liveWeightCheck;
+function refreshPlanNums() {
+  calculateMacros();
+  var U = window.U;
+  function _set(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+
+  // Onboarding review panel
+  var rsi  = (typeof window.rateStepIdx !== 'undefined') ? window.rateStepIdx : (U.rateIdx||4);
+  var rates = [-1.0,-0.75,-0.5,-0.25,0,0.25,0.5,0.75,1.0];
+  var wkRate = rates[Math.max(0,Math.min(rates.length-1,rsi))];
+  var dailyDelta = Math.round(Math.abs(wkRate) * 7700 / 7);
+  var sign = (U.goal==='bulk') ? '+' : (U.goal==='cut') ? '−' : '±';
+
+  _set('goEnergy',   (U.calories||0).toLocaleString() + ' kcal/day');
+  _set('goDelta',    sign + dailyDelta + ' kcal/day');
+  _set('goForecast', (U.timeline||0) + ' weeks');
+  _set('goPro',      (U.protein||0) + 'g/day');
+  _set('goCarb',     (U.carbs||0)   + 'g/day');
+  _set('goFat',      (U.fats||0)    + 'g/day');
+
+  // Main plan panel
+  _set('planCal',  U.calories||0);
+  _set('planPro',  (U.protein||0)+'g');
+  _set('planCarb', (U.carbs||0)+'g');
+  _set('planFat',  (U.fats||0)+'g');
+  _set('planTDEE', U.tdee||0);
+
+  // BMI bar
+  var bmiEl = document.getElementById('bmiVal');
+  if (bmiEl) bmiEl.textContent = (U.bmi||0).toFixed(1);
+  var bmiBar = document.getElementById('bmiBar');
+  if (bmiBar) {
+    var pct = Math.min(100, Math.max(0, ((U.bmi||22) - 15) / (40-15) * 100));
+    bmiBar.style.width = pct + '%';
+  }
+}
+window.refreshPlanNums = refreshPlanNums;
+function recalc() {
+  if (!window.U.height || !window.U.weight) return;
+  calculateMacros();
+  if (typeof refreshPlanNums === 'function') refreshPlanNums();
+  if (typeof saveAppState === 'function') saveAppState();
+}
+window.recalc = recalc;function obSkip() {
+  window.U = window.U || {};
+  if (!window.U.name)       window.U.name       = 'Athlete';
+  if (!window.U.height)     window.U.height     = 175;
+  if (!window.U.weight)     window.U.weight     = 75;
+  if (!window.U.age)        window.U.age        = 22;
+  if (!window.U.goalWeight) window.U.goalWeight = window.U.weight - 5;
+  if (window.U.actIdx == null) window.U.actIdx  = 2;
+  calculateMacros();
+  document.querySelectorAll('.modal-bg, .modal-sheet, [id$="Modal"]').forEach(function(m) {
+    m.style.display = 'none';
+  });
+  launchApp();
+}
+window.obSkip = obSkip;
