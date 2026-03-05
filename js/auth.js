@@ -26,48 +26,35 @@ if (typeof window !== 'undefined') {
 }
 
 function calculateMacros() {
-  var age    = window.U.age    || 22;
+  var age    = window.U.age || 22;
   var gender = window.U.gender || 'male';
-  var height = window.U.height || 175;
-  var weight = window.U.weight || 75;
-  var actIdx = window.U.actIdx != null ? window.U.actIdx : 2;
+  var height = window.U.height || 170;
+  var weight = window.U.weight || 70;
+  var actIdx = window.U.actIdx !== undefined ? window.U.actIdx : 2;
+  var rateIdx = window.U.rateIdx !== undefined ? window.U.rateIdx : 4;
 
-  // Mifflin-St Jeor BMR
-  var bmr = gender === 'male'
-    ? 10*weight + 6.25*height - 5*age + 5
-    : 10*weight + 6.25*height - 5*age - 161;
+  // 1. Calculamos BMR
+  var bmr = (gender === 'male')
+    ? (10 * weight) + (6.25 * height) - (5 * age) + 5
+    : (10 * weight) + (6.25 * height) - (5 * age) - 161;
 
-  var mult = _ACT_MULT[Math.max(0, Math.min(5, actIdx))] || 1.465;
+  // 2. Aquí estaba el error (ahora usa _ACT_MULT)
+  var mult = _ACT_MULT[actIdx] || 1.465;
   var tdee = Math.round(bmr * mult);
   window.U.tdee = tdee;
 
-  // Rate: use rateStepIdx if defined, else rateIdx on U
-  var rsi  = (typeof window.rateStepIdx !== 'undefined') ? window.rateStepIdx
-           : (window.U.rateIdx != null ? window.U.rateIdx : 4);
-  var weeklyRateRaw = _RATES[Math.max(0, Math.min(_RATES.length-1, rsi))] || 0;
-
-  // Flip sign for bulk goal
-  var weeklyRate = weeklyRateRaw;
-  if (window.U.goal === 'bulk' && weeklyRate <= 0) weeklyRate = Math.abs(weeklyRate) || 0.25;
-  if (window.U.goal === 'cut'  && weeklyRate >= 0) weeklyRate = -(Math.abs(weeklyRate) || 0.25);
-  if (window.U.goal === 'maintain') weeklyRate = 0;
-
-  var dailyDelta = Math.round(weeklyRate * 7700 / 7);
-  window.U.calories = Math.max(1200, Math.round(tdee + dailyDelta));
+  // 3. Calculamos Calorías y Macros
+  var weeklyRate = _RATES[rateIdx] || 0;
+  var dailyDelta = Math.round((weeklyRate * 7700) / 7);
+  window.U.calories = Math.max(1200, tdee + dailyDelta);
 
   window.U.protein = Math.round(weight * 2.2);
   window.U.fats    = Math.round(window.U.calories * 0.25 / 9);
-  window.U.carbs   = Math.max(0, Math.round((window.U.calories - window.U.protein*4 - window.U.fats*9) / 4));
+  window.U.carbs   = Math.max(0, Math.round((window.U.calories - (window.U.protein * 4) - (window.U.fats * 9)) / 4));
 
+  // 4. Calculamos BMI
   var hm = height / 100;
-  window.U.bmi = Math.round((weight / (hm*hm)) * 10) / 10;
-
-  var diff    = Math.abs((window.U.goalWeight||weight) - weight);
-  var absRate = Math.abs(weeklyRate) || 0.5;
-  window.U.timeline = diff > 0 ? Math.round(diff / absRate) : 0;
-
-  // Sync app.js globals if they exist
-  if (typeof rateStepIdx !== 'undefined') window.rateStepIdx = rsi;
+  window.U.bmi = Math.round((weight / (hm * hm)) * 10) / 10;
 }
 window.calculateMacros = calculateMacros;
 
