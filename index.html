@@ -20,16 +20,10 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
 
-  <!-- ═══ JS MODULES ═══════════════════════════════════════════ -->
-  <script src="js/auth.js"></script>
-  <script src="js/stripe.js"></script>
-  <script src="js/nutrition.js"></script>
-  <script src="js/workout.js"></script>
-  <script src="js/app.js"></script>
-
-  <!-- Sense -->
+  <!-- AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7252126084365082" crossorigin="anonymous"></script>
 
   <!-- Stripe -->
@@ -41,20 +35,13 @@
 </head>
 <body>
 
-<div id="loadingScreen" style="
-  position:fixed;inset:0;background:#0C0C10;
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  z-index:99999;
-">
-  <div style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;
-              background:linear-gradient(135deg,#FF8A00,#FF4B4B);
-              -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-              margin-bottom:16px">AnthrosAI</div>
-  <div style="width:40px;height:40px;border:3px solid rgba(255,138,0,.2);
-              border-top-color:#FF8A00;border-radius:50%;
-              animation:spin .8s linear infinite"></div>
-  <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+<div id="loadingScreen" style="position:fixed;inset:0;background:#0C0C10;display:flex;align-items:center;justify-content:center;z-index:99999;flex-direction:column">
+  <div style="position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center">
+    <div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,#FF8A00,#FF4B4B,#AF52DE,#00D4FF,#34C759,#FF8A00);animation:splashSpin 1.8s linear infinite;-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),white calc(100% - 4px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),white calc(100% - 4px))"></div>
+    <img src="apple-touch-icon.png" style="width:86%;height:86%;border-radius:18px;object-fit:cover;position:relative;z-index:1" alt="AnthrosAI" onerror="this.style.display='none'">
+  </div>
+  <div style="font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;color:rgba(255,255,255,.4);margin-top:20px;letter-spacing:3px">LOADING</div>
+  <style>@keyframes splashSpin{to{transform:rotate(360deg)}}</style>
 </div>
 
 
@@ -169,15 +156,14 @@
         <div class="act-example">Example:</div>
         <div class="act-example-text" id="actEx">Gym sessions, running, or active jobs like retail.</div>
       </div>
-      <div class="activity-dots" id="actDots">
-        <div class="activity-dot" data-i="0" onclick="setActivity(0)"></div>
-        <div class="activity-dot" data-i="1" onclick="setActivity(1)"></div>
-        <div class="activity-dot sel" data-i="2" onclick="setActivity(2)"></div>
-        <div class="activity-dot" data-i="3" onclick="setActivity(3)"></div>
-        <div class="activity-dot" data-i="4" onclick="setActivity(4)"></div>
-        <div class="activity-dot" data-i="5" onclick="setActivity(5)"></div>
+      <div id="actDots" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0">
+        <button onclick="setActivity(Math.max(0,(window.U?window.U.actIdx:2)-1))" style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:10px 22px;color:var(--text);font-size:1.4rem;cursor:pointer;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent">‹</button>
+        <div style="flex:1;text-align:center">
+          <div id="actTitle" style="font-weight:800;font-size:.95rem;margin-bottom:5px">Moderately Active</div>
+          <div id="actDesc" style="font-size:.7rem;color:var(--muted2);line-height:1.5">3–5 days exercise or moderate-intensity job.</div>
+        </div>
+        <button onclick="setActivity(Math.min(5,(window.U?window.U.actIdx:2)+1))" style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:10px 22px;color:var(--text);font-size:1.4rem;cursor:pointer;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent">›</button>
       </div>
-      <div class="swipe-hint">TAP DOTS TO CHANGE LEVEL</div>
     </div>
 
     <!-- SLIDE 4: GOAL TYPE + GOAL WEIGHT -->
@@ -351,6 +337,11 @@
 
 <div class="screen" id="app">
   <div class="app-topnav">
+      <button onclick="openSidebar()" style="background:none;border:none;padding:6px 10px;cursor:pointer;display:flex;flex-direction:column;gap:5px;align-items:center;-webkit-tap-highlight-color:transparent" aria-label="Menu">
+        <span style="display:block;width:20px;height:2px;background:var(--text);border-radius:2px"></span>
+        <span style="display:block;width:20px;height:2px;background:var(--text);border-radius:2px"></span>
+        <span style="display:block;width:20px;height:2px;background:var(--text);border-radius:2px"></span>
+      </button>
     <div class="app-logo-text">AnthrosAI</div>
     <div style="display:flex;align-items:center;gap:8px">
       <div class="app-streak-badge">🔥 <span id="streakCount">1</span> DAY</div>
@@ -365,7 +356,6 @@
       <div class="greeting">
         <h2 id="greetH2">Let's get after it 👊</h2>
         <p id="greetSub">Loading your plan...</p>
-        <div id="ad-banner-container" style="margin: 20px 15px; min-height: 100px; display: none;"></div>
       </div>
 
       <!-- CALORIE RING -->
@@ -496,7 +486,24 @@
         <div id="weeklyChartBars"></div>
       </div>
 
-      <div class="sec-label">Today's Meals</div>
+      
+      <!-- NET CALORIES DISPLAY -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="text-align:center;flex:1">
+          <div style="font-size:.6rem;color:var(--muted2);letter-spacing:.5px;margin-bottom:3px">CONSUMED</div>
+          <div id="netConsumed" style="font-family:var(--ff-display,Syne);font-size:1.15rem;font-weight:800;color:var(--cal)">0</div>
+        </div>
+        <div style="color:var(--border2);font-size:1rem">−</div>
+        <div style="text-align:center;flex:1">
+          <div style="font-size:.6rem;color:var(--muted2);letter-spacing:.5px;margin-bottom:3px">BURNED</div>
+          <div id="burnedDisplay" style="font-family:var(--ff-display,Syne);font-size:1.15rem;font-weight:800;color:#34C759">0</div>
+        </div>
+        <div style="color:var(--border2);font-size:1rem">=</div>
+        <div style="text-align:center;flex:1">
+          <div style="font-size:.6rem;color:var(--muted2);letter-spacing:.5px;margin-bottom:3px">NET</div>
+          <div id="netCalDisplay" style="font-family:var(--ff-display,Syne);font-size:1.15rem;font-weight:800;color:var(--text)">0</div>
+        </div>
+      </div><div class="sec-label">Today's Meals</div>
       <div id="mealBlocks" style="margin-bottom:16px"></div>
       <div id="mainAdContainer"></div>
 
@@ -1234,7 +1241,7 @@
       <div class="bnav-txt">Home</div>
     </button>
     <button class="bnav" id="nav-nutrition" onclick="showPage('nutrition',this)">
-      <svg class="bnav-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9 12h6M12 9v6"/></svg>
+      <i class="fa-solid fa-apple-whole" style="font-size:20px;height:22px;display:flex;align-items:center;justify-content:center"></i>
       <div class="bnav-txt">Nutrition</div>
     </button>
     <div class="fab-btn-center">
@@ -5052,6 +5059,13 @@ function quickAddExercise(name, muscle, setsStr, weight) {
 <!-- ═══ TOAST ════════════════════════════════════════════════ -->
 <div id="globalToast" style="position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:9999;pointer-events:none;white-space:nowrap"></div>
 
+<!-- ═══ JS MODULES ═══════════════════════════════════════════ -->
+<script src="js/auth.js"></script>
+<script src="js/stripe.js"></script>
+<script src="js/nutrition.js"></script>
+<script src="js/workout.js"></script>
+<script src="js/app.js"></script>
+
 <script>
 // Service Worker only — boot logic is in js/app.js _anthrosBoot()
 if ('serviceWorker' in navigator) {
@@ -5059,6 +5073,361 @@ if ('serviceWorker' in navigator) {
     .then(() => console.log('SW registered'))
     .catch(e => console.warn('SW:', e));
 }
+</script>
+
+
+<!-- ═══ LEFT SIDEBAR (Hamburger Menu) ════════════════════ -->
+<div id="sidebarOverlay" style="position:fixed;inset:0;z-index:8000;display:none">
+  <!-- Backdrop -->
+  <div onclick="closeSidebar()" style="position:absolute;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)"></div>
+  <!-- Panel -->
+  <div id="sidebarPanel" style="position:absolute;top:0;left:0;bottom:0;width:82%;max-width:340px;background:#13131B;border-right:1px solid var(--border);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;-webkit-overflow-scrolling:touch">
+
+    <!-- Header -->
+    <div style="padding:calc(env(safe-area-inset-top)+20px) 20px 20px;background:linear-gradient(180deg,#1A1A26 0%,transparent 100%);flex-shrink:0">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--cal),#FF4B4B);display:flex;align-items:center;justify-content:center;font-size:1.3rem">🤖</div>
+        <div>
+          <div style="font-family:var(--ff-display,Syne);font-weight:800;font-size:1.1rem">AnthrosAI</div>
+          <div id="sidebarUserName" style="font-size:.75rem;color:var(--muted2)">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nav Items -->
+    <div style="padding:8px 12px;flex:1">
+
+      <!-- AI Coach -->
+      <div class="sb-section-label">AI COACH</div>
+      <button class="sb-btn" onclick="closeSidebar();showPage('ai',document.getElementById('nav-ai'))">
+        <span class="sb-icon">🤖</span><span>AI Coach Chat</span>
+      </button>
+
+      <!-- Supplementation -->
+      <div class="sb-section-label">SUPPLEMENTATION</div>
+      <button class="sb-btn" onclick="closeSidebar();openSupplementDashboard()">
+        <span class="sb-icon">💊</span><span>Daily Supplements</span>
+      </button>
+      <button class="sb-btn" onclick="closeSidebar();showPage('more',document.getElementById('nav-more'))">
+        <span class="sb-icon">📊</span><span>Supplement History</span>
+      </button>
+
+      <!-- Recipes -->
+      <div class="sb-section-label">RECIPES</div>
+      <button class="sb-btn" onclick="closeSidebar();openRecipes('muscle')">
+        <span class="sb-icon">🏋️</span><span>Building Muscle</span>
+      </button>
+      <button class="sb-btn" onclick="closeSidebar();openRecipes('keto')">
+        <span class="sb-icon">🥑</span><span>Keto</span>
+      </button>
+      <button class="sb-btn" onclick="closeSidebar();openRecipes('vegan')">
+        <span class="sb-icon">🌱</span><span>Vegan</span>
+      </button>
+
+      <!-- Tools -->
+      <div class="sb-section-label">TOOLS</div>
+      <button class="sb-btn" onclick="closeSidebar();openFastModal()">
+        <span class="sb-icon">⏱</span><span>Intermittent Fasting</span>
+      </button>
+      <button class="sb-btn" onclick="closeSidebar();openDailyReport()">
+        <span class="sb-icon">📋</span><span>Daily Report</span>
+      </button>
+      <button class="sb-btn" onclick="closeSidebar();showPage('progress',document.getElementById('nav-progress'))">
+        <span class="sb-icon">📈</span><span>Progress</span>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:16px 20px;border-top:1px solid var(--border);flex-shrink:0">
+      <button onclick="handleLogout()" style="width:100%;background:rgba(255,59,59,.1);border:1px solid rgba(255,59,59,.3);border-radius:12px;padding:10px;color:#FF3B3B;font-size:.82rem;font-weight:700;cursor:pointer">
+        Sign Out
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SUPPLEMENT DASHBOARD MODAL ══════════════════════════ -->
+<div id="suppDashModal" style="display:none;position:fixed;inset:0;z-index:7000;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center">
+  <div style="background:#13131B;border-radius:24px 24px 0 0;padding:20px;width:100%;max-height:85vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-family:var(--ff-display,Syne);font-weight:800;font-size:1.1rem">💊 Daily Supplements</div>
+      <button onclick="document.getElementById('suppDashModal').style.display='none'" style="background:var(--card);border:none;border-radius:8px;padding:6px 12px;color:var(--text);cursor:pointer">✕</button>
+    </div>
+    <div id="suppDashList"></div>
+    <div style="font-size:.72rem;color:var(--muted2);text-align:center;margin-top:12px">Resets daily at midnight</div>
+  </div>
+</div>
+
+<!-- ═══ RECIPES MODAL ════════════════════════════════════════ -->
+<div id="recipesModal" style="display:none;position:fixed;inset:0;z-index:7000;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:flex-end;justify-content:center">
+  <div style="background:#13131B;border-radius:24px 24px 0 0;padding:20px;width:100%;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div id="recipesTitle" style="font-family:var(--ff-display,Syne);font-weight:800;font-size:1.1rem">Recipes</div>
+      <button onclick="document.getElementById('recipesModal').style.display='none'" style="background:var(--card);border:none;border-radius:8px;padding:6px 12px;color:var(--text);cursor:pointer">✕</button>
+    </div>
+    <!-- Category tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button class="recipe-tab active" onclick="switchRecipeTab('muscle',this)">🏋️ Muscle</button>
+      <button class="recipe-tab" onclick="switchRecipeTab('keto',this)">🥑 Keto</button>
+      <button class="recipe-tab" onclick="switchRecipeTab('vegan',this)">🌱 Vegan</button>
+    </div>
+    <div id="recipesList"></div>
+  </div>
+</div>
+
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// SWIPE NAVIGATION (touchstart/touchend)
+// Pages cycle: dash → nutrition → workout (and back)
+// ═══════════════════════════════════════════════════════════
+(function() {
+  var SWIPE_PAGES = ['dash','nutrition','workout'];
+  var NAV_IDS     = ['nav-dash','nav-nutrition','nav-workout'];
+  var _touchStartX = 0, _touchStartY = 0, _touchActive = false;
+
+  function currentPageIndex() {
+    for (var i = 0; i < SWIPE_PAGES.length; i++) {
+      var pg = document.getElementById('pg-' + SWIPE_PAGES[i]);
+      if (pg && pg.classList.contains('active')) return i;
+    }
+    return 0;
+  }
+
+  document.addEventListener('touchstart', function(e) {
+    // Ignore if touch is on a modal, scrollable element, or sidebar
+    var t = e.target;
+    while (t && t !== document.body) {
+      if (t.id === 'sidebarPanel' || t.classList.contains('modal-bg') ||
+          t.classList.contains('modal-sheet') || t.classList.contains('chat-sidebar') ||
+          t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT') {
+        return;
+      }
+      t = t.parentElement;
+    }
+    _touchStartX = e.touches[0].clientX;
+    _touchStartY = e.touches[0].clientY;
+    _touchActive = true;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (!_touchActive) return;
+    _touchActive = false;
+    var dx = e.changedTouches[0].clientX - _touchStartX;
+    var dy = e.changedTouches[0].clientY - _touchStartY;
+    // Only horizontal swipes (dx > 50px, dy < 80px)
+    if (Math.abs(dx) < 50 || Math.abs(dy) > 80) return;
+    // Only on the main app screen
+    var appEl = document.getElementById('app');
+    if (!appEl || !appEl.classList.contains('active')) return;
+    // Don't swipe if a modal is open
+    var openModal = document.querySelector('.modal-bg.open, [id$="Modal"][style*="flex"]');
+    if (openModal) return;
+
+    var idx = currentPageIndex();
+    if (dx < 0) {
+      // Swipe left → next page
+      var next = Math.min(idx + 1, SWIPE_PAGES.length - 1);
+      if (next !== idx) {
+        var btn = document.getElementById(NAV_IDS[next]);
+        if (typeof showPage === 'function') showPage(SWIPE_PAGES[next], btn);
+      }
+    } else {
+      // Swipe right → previous page
+      var prev = Math.max(idx - 1, 0);
+      if (prev !== idx) {
+        var btn2 = document.getElementById(NAV_IDS[prev]);
+        if (typeof showPage === 'function') showPage(SWIPE_PAGES[prev], btn2);
+      }
+    }
+  }, { passive: true });
+})();
+</script>
+
+<script>
+// ─── SIDEBAR ───────────────────────────────────────────────
+function openSidebar() {
+  var ov = document.getElementById('sidebarOverlay');
+  var pn = document.getElementById('sidebarPanel');
+  var nm = document.getElementById('sidebarUserName');
+  if (!ov) return;
+  if (nm && window.U) nm.textContent = window.U.name || 'Guest';
+  ov.style.display = 'block';
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      pn.style.transform = 'translateX(0)';
+    });
+  });
+}
+window.openSidebar = openSidebar;
+
+function closeSidebar() {
+  var ov = document.getElementById('sidebarOverlay');
+  var pn = document.getElementById('sidebarPanel');
+  if (!pn) return;
+  pn.style.transform = 'translateX(-100%)';
+  setTimeout(function() { if (ov) ov.style.display = 'none'; }, 300);
+}
+window.closeSidebar = closeSidebar;
+
+// ─── SUPPLEMENT DASHBOARD ──────────────────────────────────
+function openSupplementDashboard() {
+  var modal = document.getElementById('suppDashModal');
+  if (!modal) return;
+  modal.style.display = 'flex';
+  var list = document.getElementById('suppDashList');
+  if (!list) return;
+  var supps = window._supplements || [];
+  if (!supps.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted2);padding:24px">No supplements configured.<br>Add them in your profile.</div>';
+    return;
+  }
+  var taken = supps.filter(function(s){ return s.taken; }).length;
+  list.innerHTML =
+    '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:12px;background:var(--card);border-radius:14px">' +
+    '<div style="font-size:1.4rem">' + taken + '/' + supps.length + '</div>' +
+    '<div style="flex:1"><div style="font-weight:700;font-size:.88rem">Taken today</div>' +
+    '<div style="background:var(--bg2);border-radius:4px;height:6px;margin-top:5px"><div style="background:var(--cal);height:100%;border-radius:4px;width:' +
+    Math.round(taken/supps.length*100) + '%"></div></div></div></div>' +
+    supps.map(function(s) {
+      return '<div style="display:flex;align-items:center;gap:12px;padding:12px;background:var(--card);border-radius:14px;margin-bottom:8px">' +
+        '<div style="width:36px;height:36px;border-radius:10px;background:' + (s.color||'var(--cal)') + '20;display:flex;align-items:center;justify-content:center;font-size:1.1rem">💊</div>' +
+        '<div style="flex:1"><div style="font-weight:700;font-size:.85rem;color:' + (s.color||'var(--text)') + '">' + s.name + '</div>' +
+        '<div style="font-size:.7rem;color:var(--muted2)">' + s.dose + '</div></div>' +
+        '<button onclick="toggleSupp('' + s.id + '');openSupplementDashboard()" style="background:' + (s.taken?'var(--cal)':'var(--card)') + ';border:1.5px solid ' + (s.taken?'var(--cal)':'var(--border)') + ';border-radius:10px;padding:6px 14px;color:' + (s.taken?'black':'var(--text)') + ';font-size:.78rem;font-weight:700;cursor:pointer">' +
+        (s.taken ? '✓ Done' : 'Take') + '</button></div>';
+    }).join('');
+}
+window.openSupplementDashboard = openSupplementDashboard;
+
+// ─── RECIPES ───────────────────────────────────────────────
+var RECIPES = {
+  muscle: [
+    { name:'Chicken & Rice Bowl', kcal:520, protein:48, prep:'10 min',
+      desc:'200g grilled chicken breast, 150g white rice, broccoli, olive oil dressing.',
+      steps:['Season chicken with salt, pepper, garlic powder','Grill 6-7 min each side','Cook rice, steam broccoli 5 min','Combine, drizzle with olive oil'] },
+    { name:'Beef & Oat Protein Shake', kcal:410, protein:38, prep:'3 min',
+      desc:'200ml whole milk, 40g oats, 1 banana, 30g whey protein, peanut butter.',
+      steps:['Add all ingredients to blender','Blend 45 seconds until smooth','Serve immediately after training'] },
+    { name:'Salmon & Sweet Potato', kcal:480, protein:42, prep:'20 min',
+      desc:'180g Atlantic salmon, 200g baked sweet potato, asparagus, lemon.',
+      steps:['Preheat oven 200°C','Bake sweet potato 35 min','Season salmon, pan-sear 4 min each side','Roast asparagus 12 min','Serve with lemon wedge'] },
+    { name:'Greek Yogurt Parfait', kcal:340, protein:30, prep:'5 min',
+      desc:'200g Greek yogurt 0%, 30g granola, mixed berries, honey, chia seeds.',
+      steps:['Layer yogurt in bowl','Add granola and berries','Drizzle honey, sprinkle chia seeds'] },
+    { name:'Tuna Pasta', kcal:460, protein:40, prep:'12 min',
+      desc:'150g whole wheat pasta, 2 cans tuna, cherry tomatoes, capers, olive oil.',
+      steps:['Cook pasta al dente','Drain tuna well','Mix tuna, tomatoes, capers','Toss with pasta and olive oil, season'] },
+  ],
+  keto: [
+    { name:'Bacon & Egg Cups', kcal:320, protein:22, prep:'15 min',
+      desc:'4 bacon strips, 4 eggs, cheddar cheese, chives, butter.',
+      steps:['Preheat oven 180°C','Line muffin tins with bacon','Crack egg into each cup','Add cheese, bake 15-18 min'] },
+    { name:'Avocado Tuna Boats', kcal:380, protein:28, prep:'5 min',
+      desc:'2 ripe avocados, 2 cans tuna, mayo, lime juice, jalapeño, cilantro.',
+      steps:['Halve avocados, remove pit','Mix tuna with mayo and lime','Fill avocado halves','Top with jalapeño and cilantro'] },
+    { name:'Zucchini Noodles & Pesto', kcal:290, protein:18, prep:'10 min',
+      desc:'3 medium zucchini, 4 tbsp pesto, cherry tomatoes, parmesan, pine nuts.',
+      steps:['Spiralize zucchini','Sauté 2 min in olive oil','Toss with pesto off heat','Top with tomatoes, parmesan, nuts'] },
+    { name:'Keto Fat Bombs', kcal:180, protein:4, prep:'45 min (chill)',
+      desc:'100g cream cheese, 50g almond butter, 30g dark chocolate 85%, coconut oil.',
+      steps:['Soften cream cheese, mix with almond butter','Form into balls','Dip in melted chocolate','Chill 30 min in fridge'] },
+    { name:'Cauliflower Fried Rice', kcal:310, protein:24, prep:'15 min',
+      desc:'1 head cauliflower, 2 eggs, soy sauce, sesame oil, mixed vegetables, chicken.',
+      steps:['Pulse cauliflower to rice-size pieces','Stir-fry chicken until cooked','Add vegetables, cauliflower rice','Push aside, scramble eggs, combine, season'] },
+  ],
+  vegan: [
+    { name:'Lentil Curry', kcal:420, protein:22, prep:'25 min',
+      desc:'200g red lentils, coconut milk, tomatoes, spinach, curry spices, rice.',
+      steps:['Sauté onion, garlic, ginger 3 min','Add spices, cook 1 min','Add lentils, tomatoes, coconut milk','Simmer 20 min, stir in spinach, serve with rice'] },
+    { name:'Tofu Buddha Bowl', kcal:480, protein:28, prep:'20 min',
+      desc:'200g firm tofu, quinoa, edamame, cucumber, carrot, tahini dressing.',
+      steps:['Press and cube tofu, bake 25 min at 200°C','Cook quinoa','Assemble bowl with veggies','Drizzle tahini-lemon dressing'] },
+    { name:'Chickpea Omelette', kcal:340, protein:20, prep:'10 min',
+      desc:'100g chickpea flour, nutritional yeast, kala namak, vegetables of choice.',
+      steps:['Whisk chickpea flour with water, yeast, kala namak','Add diced veggies','Cook in non-stick pan 4 min each side'] },
+    { name:'Peanut Butter Overnight Oats', kcal:450, protein:18, prep:'5 min + overnight',
+      desc:'80g rolled oats, oat milk, 2 tbsp peanut butter, banana, maple syrup, chia.',
+      steps:['Mix oats, milk, chia in jar','Add PB and maple syrup','Slice banana on top','Refrigerate overnight, eat cold'] },
+    { name:'Black Bean Tacos', kcal:390, protein:18, prep:'15 min',
+      desc:'2 cans black beans, corn tortillas, avocado, salsa, lime, cilantro.',
+      steps:['Drain, rinse, heat beans with cumin and garlic','Warm tortillas','Mash some beans for texture','Fill with beans, avocado, salsa, cilantro, lime squeeze'] },
+  ]
+};
+
+var _currentRecipeTab = 'muscle';
+
+function openRecipes(category) {
+  _currentRecipeTab = category || 'muscle';
+  var modal = document.getElementById('recipesModal');
+  if (modal) modal.style.display = 'flex';
+  renderRecipes(_currentRecipeTab);
+  // Update tabs
+  document.querySelectorAll('.recipe-tab').forEach(function(b) {
+    b.classList.toggle('active', b.textContent.toLowerCase().includes(_currentRecipeTab));
+  });
+}
+window.openRecipes = openRecipes;
+
+function switchRecipeTab(cat, btn) {
+  _currentRecipeTab = cat;
+  document.querySelectorAll('.recipe-tab').forEach(function(b){ b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  renderRecipes(cat);
+}
+window.switchRecipeTab = switchRecipeTab;
+
+function renderRecipes(cat) {
+  var list = document.getElementById('recipesList');
+  if (!list) return;
+  var items = RECIPES[cat] || [];
+  var titles = { muscle:'🏋️ Building Muscle', keto:'🥑 Keto', vegan:'🌱 Vegan' };
+  var titleEl = document.getElementById('recipesTitle');
+  if (titleEl) titleEl.textContent = titles[cat] || 'Recipes';
+
+  list.innerHTML = items.map(function(r, i) {
+    return '<div style="background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:12px;overflow:hidden">' +
+      '<div onclick="toggleRecipe(' + i + ','' + cat + '')" style="padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">' +
+      '<div><div style="font-weight:700;font-size:.92rem;margin-bottom:3px">' + r.name + '</div>' +
+      '<div style="font-size:.7rem;color:var(--muted2)">' + r.kcal + ' kcal · ' + r.protein + 'g protein · ' + r.prep + '</div></div>' +
+      '<span id="recipe-chevron-' + i + '" style="color:var(--muted2);font-size:.9rem;transition:transform .2s">▾</span></div>' +
+      '<div id="recipe-body-' + i + '" style="display:none;padding:0 16px 14px">' +
+      '<div style="font-size:.78rem;color:var(--muted2);margin-bottom:10px">' + r.desc + '</div>' +
+      '<div style="font-size:.72rem;font-weight:700;color:var(--cal);letter-spacing:.5px;margin-bottom:6px">STEPS</div>' +
+      r.steps.map(function(s, si) {
+        return '<div style="display:flex;gap:8px;margin-bottom:6px"><div style="width:18px;height:18px;border-radius:50%;background:var(--cal);color:black;font-size:.62rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">' + (si+1) + '</div><div style="font-size:.78rem;color:var(--text);line-height:1.5">' + s + '</div></div>';
+      }).join('') +
+      '<button onclick="logRecipeToNutrition('' + r.name + '',' + r.kcal + ',' + r.protein + ')" style="width:100%;background:rgba(255,138,0,.1);border:1px solid rgba(255,138,0,.3);border-radius:10px;padding:9px;font-size:.8rem;font-weight:700;color:var(--cal);cursor:pointer;margin-top:10px">+ Log to Nutrition</button>' +
+      '</div></div>';
+  }).join('');
+}
+window.renderRecipes = renderRecipes;
+
+function toggleRecipe(i, cat) {
+  var body = document.getElementById('recipe-body-' + i);
+  var chev = document.getElementById('recipe-chevron-' + i);
+  if (!body) return;
+  var open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  if (chev) chev.style.transform = open ? '' : 'rotate(180deg)';
+}
+window.toggleRecipe = toggleRecipe;
+
+function logRecipeToNutrition(name, kcal, protein) {
+  // Log as a snack entry
+  if (window.foodLog && window.foodLog.Snack !== undefined) {
+    var entry = { name: name, calories: kcal, protein: protein || 0, carbs: 0, fat: 0 };
+    window.foodLog.Snack.push(entry);
+    window.totalCals = (window.totalCals || 0) + kcal;
+    window.totalPro  = (window.totalPro  || 0) + (protein || 0);
+    if (typeof updateMacroDisplay === 'function') updateMacroDisplay();
+    if (typeof renderMealBlocks   === 'function') renderMealBlocks();
+    if (typeof saveAppState       === 'function') saveAppState();
+    if (typeof showToast          === 'function') showToast(name + ' logged ✓', 'ok');
+  }
+  document.getElementById('recipesModal').style.display = 'none';
+}
+window.logRecipeToNutrition = logRecipeToNutrition;
 </script>
 
 </body>
