@@ -26,33 +26,33 @@ if (typeof window !== 'undefined') {
 }
 
 function calculateMacros() {
-  var age    = window.U.age || 22;
-  var gender = window.U.gender || 'male';
-  var height = window.U.height || 170;
-  var weight = window.U.weight || 70;
-  var actIdx = window.U.actIdx !== undefined ? window.U.actIdx : 2;
-  var rateIdx = window.U.rateIdx !== undefined ? window.U.rateIdx : 4;
+  // Verificamos que U exista para evitar errores de "undefined"
+  if (!window.U) return;
 
-  // 1. Calculamos BMR
-  var bmr = (gender === 'male')
+  const age    = window.U.age || 22;
+  const gender = window.U.gender || 'male';
+  const height = window.U.height || 170;
+  const weight = window.U.weight || 70;
+  const actIdx = window.U.actIdx !== undefined ? window.U.actIdx : 2;
+  
+  // Usamos _ACT_MULT que es como la definiste arriba
+  const mult = window._ACT_MULT[actIdx] || 1.465;
+  const bmr = (gender === 'male')
     ? (10 * weight) + (6.25 * height) - (5 * age) + 5
     : (10 * weight) + (6.25 * height) - (5 * age) - 161;
 
-  // 2. Aquí estaba el error (ahora usa _ACT_MULT)
-  var mult = _ACT_MULT[actIdx] || 1.465;
-  var tdee = Math.round(bmr * mult);
-  window.U.tdee = tdee;
-
-  // 3. Calculamos Calorías y Macros
-  var weeklyRate = _RATES[rateIdx] || 0;
-  var dailyDelta = Math.round((weeklyRate * 7700) / 7);
-  window.U.calories = Math.max(1200, tdee + dailyDelta);
-
-  window.U.protein = Math.round(weight * 2.2);
-  window.U.fats    = Math.round(window.U.calories * 0.25 / 9);
-  window.U.carbs   = Math.max(0, Math.round((window.U.calories - (window.U.protein * 4) - (window.U.fats * 9)) / 4));
-
-  // 4. Calculamos BMI
+  window.U.tdee = Math.round(bmr * mult);
+  
+  // Cálculo de déficit/superávit basado en RATE
+  const rateIdx = window.U.rateIdx !== undefined ? window.U.rateIdx : 4;
+  const weeklyRate = window._RATES[rateIdx] || 0;
+  const dailyDelta = Math.round((weeklyRate * 7700) / 7);
+  
+  window.U.calories = Math.max(1200, window.U.tdee + dailyDelta);
+  window.U.protein  = Math.round(weight * 2.2);
+  window.U.fats     = Math.round(window.U.calories * 0.25 / 9);
+  window.U.carbs    = Math.max(0, Math.round((window.U.calories - (window.U.protein * 4) - (window.U.fats * 9)) / 4));
+  //4. Calculamos BMI
   var hm = height / 100;
   window.U.bmi = Math.round((weight / (hm * hm)) * 10) / 10;
 }
