@@ -30,13 +30,16 @@ function calculateMacros() {
   U.timeline = diff > 0 ? Math.round(diff / absRate) : 0;
 }
 
+
 function launchApp() {
-  if (!U.name) U.name = 'Athlete';
-  if (!U.height) { U.height=175; U.weight=75; U.goalWeight=70; U.age=22; }
-  calculateMacros();
-  showScreen('app');
-  initApp();
+  if (!window.U.name) window.U.name = 'Athlete';
+  if (!window.U.height) { window.U.height=175; window.U.weight=75; window.U.goalWeight=70; window.U.age=22; }
+  if (typeof calculateMacros === 'function') calculateMacros();
+  if (typeof showScreen === 'function') showScreen('app');
+  if (typeof initApp === 'function') initApp();
 }
+window.launchApp = launchApp;
+
 
 function initApp() {
   var _e = function(id){ return document.getElementById(id); };
@@ -193,3 +196,30 @@ function obBack() {
   obStep--;
   obUpdateUI();
 }
+// ── Auth window bindings ──
+window.obUpdateUI = obUpdateUI;
+window.initApp = initApp;
+window.validateStep = validateStep;
+window.obBack = obBack;
+window.launchApp = launchApp;
+window.obNext = obNext;
+window.calculateMacros = calculateMacros;
+
+
+function setActivity(n) {
+  n = Math.max(0, Math.min(5, parseInt(n) || 0));
+  window.U.actIdx = n;
+  // Update arrow selector labels
+  var actNames = ['Sedentary', 'Lightly Active', 'Moderately Active', 'Active', 'Very Active', 'Athlete'];
+  var actDescs = ['Desk job, no exercise. Minimal movement throughout the day.', 'Light exercise 1-3 days/week or daily walking.', '3-5 days exercise or moderate-intensity job.', 'Hard exercise 6-7 days/week or physical job.', 'Very hard exercise daily, or two-a-days.', 'Professional athlete or extremely intense training.'];
+  var titleEl = document.getElementById('actArrowTitle') || document.getElementById('actTitle');
+  var descEl  = document.getElementById('actArrowDesc')  || document.getElementById('actDesc');
+  if (titleEl) titleEl.textContent = actNames[n] || actNames[2];
+  if (descEl)  descEl.textContent  = actDescs[n] || actDescs[2];
+  // Legacy dots (if still present)
+  document.querySelectorAll('.activity-dot').forEach(function(d, i) {
+    d.classList.toggle('sel', i === n);
+  });
+  if (typeof recalc === 'function') recalc();
+}
+window.setActivity = setActivity;
