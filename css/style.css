@@ -2037,8 +2037,9 @@ body { padding-top: env(safe-area-inset-top, 0px); }
 
 /* ══ ADS WRAPPER ═══════════════════════════════════════════ */
 .ads-wrapper {
-  margin:14px 0;border-radius:15px;overflow:hidden;
-  background:var(--card);border:1px solid var(--border);
+  min-height: 100px;
+  min-width: 250px;
+  display: block;
 }
 
 /* ══ V9 FIXES ════════════════════════════════════════════ */
