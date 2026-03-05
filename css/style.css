@@ -1936,3 +1936,107 @@ body { padding-top: env(safe-area-inset-top, 0px); }
 
 /* ══ GLASSMORPHISM MODALS ══ */
 .modal-sheet { backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px); }
+
+/* ══ SIDEBAR ═══════════════════════════════════════════════ */
+.sb-section-label {
+  font-size:.6rem;font-weight:800;color:var(--muted);
+  letter-spacing:1px;text-transform:uppercase;
+  padding:14px 8px 6px;
+}
+.sb-btn {
+  display:flex;align-items:center;gap:12px;width:100%;
+  background:none;border:none;color:var(--text);
+  padding:11px 12px;border-radius:14px;cursor:pointer;
+  font-size:.88rem;font-weight:500;text-align:left;
+  transition:background .15s;-webkit-tap-highlight-color:transparent;
+}
+.sb-btn:active { background:var(--card); }
+.sb-icon { font-size:1.1rem;width:24px;text-align:center;flex-shrink:0; }
+
+/* ══ RECIPE TABS ════════════════════════════════════════════ */
+.recipe-tab {
+  flex:1;padding:8px 0;border-radius:10px;
+  background:var(--card);border:1.5px solid var(--border);
+  color:var(--muted2);font-size:.78rem;font-weight:700;cursor:pointer;
+  transition:all .15s;-webkit-tap-highlight-color:transparent;
+}
+.recipe-tab.active {
+  background:var(--cal);border-color:var(--cal);color:black;
+}
+
+/* ══ EXERCISE LIBRARY ROW ══════════════════════════════════ */
+.lib-ex-row {
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:12px;cursor:pointer;transition:background .15s;
+  -webkit-tap-highlight-color:transparent;
+}
+.lib-ex-row:active { background:var(--card2); }
+
+/* ══ WORKOUT CARD ══════════════════════════════════════════ */
+.wk-exercise-card {
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:14px;margin-bottom:10px;
+  transition:border-color .2s;
+}
+.wk-exercise-card.done { border-color:rgba(52,199,89,.4); }
+.wk-ex-header { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px; }
+.wk-ex-name { font-weight:700;font-size:.9rem; }
+.wk-set-row { display:flex;align-items:center;gap:10px;margin-bottom:7px; }
+.wk-set-check {
+  width:24px;height:24px;border-radius:7px;
+  border:2px solid var(--border);background:var(--bg2);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .15s;-webkit-tap-highlight-color:transparent;
+}
+.wk-set-check.done { background:var(--cal);border-color:var(--cal); }
+.wk-set-label { font-size:.78rem;color:var(--muted2); }
+
+/* ══ WATER GLASSES GRID ════════════════════════════════════ */
+.water-glasses-grid {
+  display:grid;grid-template-columns:repeat(8,1fr);gap:5px;
+}
+.water-glass-btn {
+  aspect-ratio:1;border-radius:10px;
+  border:2px solid rgba(0,209,255,.2);
+  background:rgba(0,209,255,.04);
+  cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:1rem;
+  transition:all .2s;-webkit-tap-highlight-color:transparent;
+}
+.water-glass-btn.filled { background:rgba(0,209,255,.25);border-color:rgba(0,209,255,.6); }
+.water-glass-btn.elite  { background:rgba(0,209,255,.45);border-color:#00D1FF;
+  box-shadow:0 0 10px rgba(0,209,255,.35);animation:waterPulse .5s ease; }
+@keyframes waterPulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.12)} }
+.water-elite-badge {
+  background:linear-gradient(135deg,#00D1FF,#0098FF);color:black;
+  border-radius:10px;padding:5px 12px;font-weight:800;font-size:.7rem;
+  letter-spacing:.4px;display:inline-block;
+}
+
+/* ══ SUPPLEMENT CARD ═══════════════════════════════════════ */
+.supp-card {
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:14px;margin-bottom:10px;
+}
+
+/* ══ NOTE CARD ══════════════════════════════════════════════ */
+.note-card {
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;padding:14px;margin-bottom:10px;
+}
+
+/* ══ NUTRIENT ACCORDION ════════════════════════════════════ */
+.nc-accordion {
+  background:var(--card);border:1px solid var(--border);
+  border-radius:14px;margin-bottom:8px;overflow:hidden;
+}
+.nc-head { display:flex;align-items:center;justify-content:space-between;padding:13px 16px;cursor:pointer; }
+.nc-nm { font-weight:700;font-size:.88rem; }
+.nc-body { padding:0 16px 14px;display:none; }
+.nc-body.open { display:block; }
+
+/* ══ ADS WRAPPER ═══════════════════════════════════════════ */
+.ads-wrapper {
+  margin:14px 0;border-radius:15px;overflow:hidden;
+  background:var(--card);border:1px solid var(--border);
+}
