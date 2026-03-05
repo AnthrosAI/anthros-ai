@@ -9,12 +9,12 @@
 
 // ── EXERCISE DATABASE ───────────────────────────────────────
 var exercises = [
-  {n:'Bench Press',     sets:'4×8',  wt:'185 lbs', muscle:'Chest',       done:false},
-  {n:'Incline DB Press',sets:'3×10', wt:'65 lbs',  muscle:'Upper Chest', done:false},
-  {n:'Overhead Press',  sets:'4×6',  wt:'135 lbs', muscle:'Shoulders',   done:false},
-  {n:'Lateral Raises',  sets:'3×15', wt:'20 lbs',  muscle:'Side Delts',  done:false},
-  {n:'Tricep Dips',     sets:'3×12', wt:'BW+45',   muscle:'Triceps',     done:false},
-  {n:'Cable Flyes',     sets:'3×15', wt:'40 lbs',  muscle:'Chest',       done:false},
+  {n:'Bench Press',     sets:[{label:'4×8',done:false},{label:'4×8',done:false},{label:'4×8',done:false},{label:'4×8',done:false}],  wt:'185 lbs', muscle:'Chest',       done:false},
+  {n:'Incline DB Press',sets:[{label:'3×10',done:false},{label:'3×10',done:false},{label:'3×10',done:false}], wt:'65 lbs',  muscle:'Upper Chest', done:false},
+  {n:'Overhead Press',  sets:[{label:'4×6',done:false},{label:'4×6',done:false},{label:'4×6',done:false},{label:'4×6',done:false}],  wt:'135 lbs', muscle:'Shoulders',   done:false},
+  {n:'Lateral Raises',  sets:[{label:'3×15',done:false},{label:'3×15',done:false},{label:'3×15',done:false}], wt:'20 lbs',  muscle:'Side Delts',  done:false},
+  {n:'Tricep Dips',     sets:[{label:'3×12',done:false},{label:'3×12',done:false},{label:'3×12',done:false}], wt:'BW+45',   muscle:'Triceps',     done:false},
+  {n:'Cable Flyes',     sets:[{label:'3×15',done:false},{label:'3×15',done:false},{label:'3×15',done:false}], wt:'40 lbs',  muscle:'Chest',       done:false},
 ];
 
 // ── FULL EXERCISE LIBRARY ───────────────────────────────────
@@ -371,3 +371,21 @@ function quickAddExercise(name, muscle, setsStr, weight) {
   renderWorkoutPage();
   showToast(name + ' added to workout!', 'ok');
 }
+
+
+// ── Window bindings (global scope for HTML onclick) ──
+window.openExerciseLog = openExerciseLog;
+window.renderWorkoutPage = renderWorkoutPage;
+window.toggleEx = toggleEx;
+window.toggleSet = toggleSet;
+window.saveExercise = saveExercise;
+window.quickAddExercise = quickAddExercise;
+window.renderExercises = renderExercises;
+window.filterWorkout = filterWorkout;
+window.updateWorkoutStats = updateWorkoutStats;
+window.quickAddFromLibrary = quickAddFromLibrary;
+window.initNutritionPage = initNutritionPage;
+window.renderExerciseLibrary = renderExerciseLibrary;
+window.closeExerciseModal = closeExerciseModal;
+window.searchExercises = searchExercises;
+window.removeExercise = removeExercise;
