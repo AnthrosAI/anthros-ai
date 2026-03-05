@@ -100,3 +100,13 @@ function injectAdSense(containerId) {
     </div>`;
 }
 
+
+// ── Stripe window bindings ──
+window.getStripe = getStripe;
+window.openPaywall = openPaywall;
+window.startCheckout = startCheckout;
+window.closePaywall = closePaywall;
+window.checkPaymentReturn = checkPaymentReturn;
+window.injectAdSense = injectAdSense;
+window.selectPlan = selectPlan;
+window.activatePro = activatePro;
