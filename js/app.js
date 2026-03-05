@@ -104,6 +104,7 @@ function showPage(id, btn) {
   if (id === 'dash')       { renderDashboard(); }
   updateDateNav();
 }
+window.showPage = showPage;
 
 function renderDashboard() {
   renderWater();
@@ -320,29 +321,38 @@ async function sendMsg() {
   const sbtn = document.getElementById('aiSendBtn');
   if (sbtn) sbtn.disabled = true;
   try {
-    const res = await fetch(GROQ_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${GROQ_KEY}`},
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        max_tokens: 512,
-        messages: [{ role:'system', content: buildSysPrompt() }, ...msgHistory]
-      })
-    });
+    // Route: if GROQ_KEY present → direct Groq API; else → /api/groq serverless proxy
+    const _key = (typeof GROQ_KEY !== 'undefined' && GROQ_KEY) ? GROQ_KEY : '';
+    const _useProxy = !_key;
+    const _url  = _useProxy ? '/api/groq' : GROQ_URL;
+    const _body = {
+      model: typeof GROQ_MODEL !== 'undefined' ? GROQ_MODEL : 'llama-3.3-70b-versatile',
+      max_tokens: 512,
+      messages: [{ role:'system', content: buildSysPrompt() }, ...msgHistory.slice(-12)]
+    };
+    const _headers = { 'Content-Type': 'application/json' };
+    if (!_useProxy) _headers['Authorization'] = `Bearer ${_key}`;
+
+    const res = await fetch(_url, { method:'POST', headers:_headers, body: JSON.stringify(_body) });
+    if (!res.ok) throw new Error('API ' + res.status + ': ' + await res.text().catch(()=>''));
     const data = await res.json();
     if (typing) typing.remove();
-    const reply = data.choices?.[0]?.message?.content || 'No response';
+    const reply = data.choices?.[0]?.message?.content
+               || data.content  // Anthropic format fallback
+               || 'No response from AI. Check your connection.';
     msgHistory.push({ role:'assistant', content:reply });
     addAiMsg(reply);
     setTimeout(saveChatSession, 300);
   } catch(err) {
     if (typing) typing.remove();
-    addAiMsg('Connection issue. Check your internet and try again.');
+    console.error('AI error:', err);
+    addAiMsg('⚠️ ' + (err.message || 'Connection issue') + '. Check your internet and Groq API key in Vercel settings.');
   } finally {
     if (sbtn) sbtn.disabled = false;
     saveAppState();
   }
 }
+window.sendMsg = sendMsg;
 
 function quickAsk(q) {
   const inp = document.getElementById('aiInput');
@@ -1443,6 +1453,24 @@ function calcCaloriesBurned() {
 }
 window.calcCaloriesBurned = calcCaloriesBurned;
 
-window.showPage = showPage;
-window.showScreen = showScreen;
-window.showToast = showToast;
+
+// ═══════════════════════════════════════════════════════════
+// WINDOW BINDINGS — exposes every function to HTML onclick
+// ═══════════════════════════════════════════════════════════
+(function _exposeAll() {
+  var _fns = ['addAiMsg','addNote','addSteps','addTyping','addUsrMsg','addWater','buildSysPrompt','calcCaloriesBurned','calcNetCalories','calculateBMI','cancelEdit','changeDay','changeRate','checkExtremeRate','checkGoalWeight','checkPaymentReturn','closeChatSidebar','closeDailyReport','closeDevicesModal','closeFAB','closeFastModal','closeFood','closeFoodModal2','closeNoteModal','closeNotificationsModal','closePhotoLog','closePrivacyModal','closeWeightModal','connectDevice','fireNotif','handleLogout','initMorePage','initProfilePage','initStepsWidget','injectMainAds','liveWeightCheck','loadAppState','loadChatSession','logSleep','logoutApp','manualStepsInput','newChatSession','obSkip','onProActivated','openChatSidebar','openDailyReport','openDevicesModal','openFAB','openFABOption','openFastModal','openFastPage','openNotificationsModal','openPhotoLog','openPrivacyModal','openSleepLog','openWeightLog','previewPhotoLog','quickAsk','recalc','refreshPlanNums','renderChatHistory','renderDailyReport','renderDashboard','renderMoodTracker','renderNotesList','renderPhotoHistory','renderProgress','renderProgressCharts','renderSleepHistory','renderStepsLineChart','renderStepsWidget','renderSupplements','renderWater','renderWeeklyChart','renderWeightHistory','renderWeightLineChart','requestNotifications','resendEmail','resetFast','saveAppState','saveChatSession','saveNote','savePhotoLog','saveProfileField','saveStepsState','saveWeightLog','scheduleSmartNotifications','selGender','selGoal','selPlan','sendMsg','setActivity','setMood','setSleepQuality','showPage','showScreen','showSetupInstructions','showSleepPage','showToast','startFast','startMotionStepCount','toggleDrSection','toggleEdit','toggleFast','toggleSupp','toggleTnc','updateDateNav','updateFastDisplay','updateFastTimer','updateMacroDisplay','updateNotifStatus','updateRateDisplay','updateSleepStats'];
+  _fns.forEach(function(n) {
+    try { var f = eval(n); if (typeof f === "function") window[n] = f; } catch(e){}
+  });
+  // Critical explicit bindings
+  window.sendMsg           = sendMsg;
+  window.showPage          = showPage;
+  window.showScreen        = showScreen;
+  window.showToast         = showToast;
+  window.calcNetCalories   = calcNetCalories;
+  window.calcCaloriesBurned= calcCaloriesBurned;
+  window.openSidebar       = function(){ if(typeof openSidebar !== "undefined") openSidebar(); };
+  window.closeSidebar      = function(){ if(typeof closeSidebar !== "undefined") closeSidebar(); };
+  window.openRecipes       = function(c){ if(typeof openRecipes !== "undefined") openRecipes(c); };
+  window.openSupplementDashboard = function(){ if(typeof openSupplementDashboard !== "undefined") openSupplementDashboard(); };
+})();
