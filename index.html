@@ -68,270 +68,368 @@
   </div>
 </div>
 
-<!-- ==================== ONBOARDING ==================== -->
-
+<!-- ══════════════════════════════════════════════════════
+     ONBOARDING  — AnthrosAI v10
+     ▸ Zero inline onclick — all events via data-action / data-sel-group
+     ▸ data-action    → ob-next | ob-back | act-prev | act-next | rate-dec | rate-inc
+     ▸ data-sel-group → gender | goal     (+ data-sel-val)
+     ▸ data-tnc-key   → tos | disclaimer | marketing
+     ════════════════════════════════════════════════════════ -->
 <div class="screen" id="onboarding">
+
+  <!-- ── Topbar ─────────────────────────────────────────── -->
   <div class="ob-topbar">
-    <div class="ob-back" id="obBackBtn" onclick="obBack()">←</div>
-    <div class="ob-step-label" id="obStepLbl">Step 1 of 8</div>
-    <div class="ob-prog-track"><div class="ob-prog-fill" id="obProg" style="width:12.5%"></div></div>
+    <button class="ob-back" id="obBackBtn" data-action="ob-back" aria-label="Go back">←</button>
+    <div class="ob-step-label" id="obStepLbl">Step 1 of 9</div>
+    <div class="ob-prog-track">
+      <div class="ob-prog-fill" id="obProg" style="width:11%"></div>
+    </div>
   </div>
 
+  <!-- ── Slides viewport ───────────────────────────────── -->
   <div class="ob-slides-wrap">
   <div class="ob-slides" id="obSlides">
 
-    <!-- SLIDE 0: WELCOME -->
-    <div class="ob-slide">
+
+    <!-- ══════════════════════════════ SLIDE 0 — WELCOME -->
+    <div class="ob-slide" id="ob-slide-0">
       <div class="ob-slide-icon" style="width:80px;height:80px;border-radius:28px;background:var(--card2);margin-bottom:24px;display:flex;align-items:center;justify-content:center;font-size:2.5rem">🏆</div>
       <div class="ob-h1">The Last<br>Fitness App<br><span class="hl">You'll Ever Need.</span></div>
-      <div class="ob-p">Real AI coaching. Cronometer-level nutrition tracking. Personalized entirely to your body. Built to make you unstoppable.</div>
-      <ul style="list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
-        <li style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;">
-          <span style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--cal),var(--pro));display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0">✓</span>
-          <span style="font-size:0.85rem;color:var(--muted2)">Real Claude AI that knows your exact stats</span>
+      <div class="ob-p">Real AI coaching. Cronometer-level nutrition. Personalised entirely to your body.</div>
+      <ul class="ob-features-list">
+        <li>
+          <span class="ob-feat-check" style="background:linear-gradient(135deg,var(--cal),var(--pro))">✓</span>
+          <span>AI coach that knows your exact stats</span>
         </li>
-        <li style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;">
-          <span style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--water),var(--ai));display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0">✓</span>
-          <span style="font-size:0.85rem;color:var(--muted2)">Mifflin-St Jeor BMR + macro calculations</span>
+        <li>
+          <span class="ob-feat-check" style="background:linear-gradient(135deg,var(--water),var(--ai))">✓</span>
+          <span>Mifflin-St Jeor BMR + macro calculator</span>
         </li>
-        <li style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:14px;">
-          <span style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--streak),var(--water));display:flex;align-items:center;justify-content:center;font-size:0.7rem;flex-shrink:0">✓</span>
-          <span style="font-size:0.85rem;color:var(--muted2)">BMI safety checks & goal validation</span>
+        <li>
+          <span class="ob-feat-check" style="background:linear-gradient(135deg,var(--streak),var(--water))">✓</span>
+          <span>BMI safety validation at every step</span>
         </li>
       </ul>
     </div>
 
-    <!-- SLIDE 1: NAME -->
-    <div class="ob-slide">
-      <div class="ob-slide-icon" style="background:var(--card2)"><span>👤</span></div>
+
+    <!-- ══════════════════════════════ SLIDE 1 — NAME -->
+    <div class="ob-slide" id="ob-slide-1">
+      <div class="ob-slide-icon"><span>👤</span></div>
       <div class="ob-h1">What's Your<br><span class="hl">Name?</span></div>
       <div class="ob-p">Your AI coach needs to know who they're working with.</div>
-      <label class="ob-label">First Name</label>
-      <input class="ob-field" id="f-name" type="text" placeholder="e.g. Alex" autocomplete="given-name">
+      <label class="ob-label" for="f-name">First Name</label>
+      <input class="ob-field" id="f-name" type="text" placeholder="e.g. Alex"
+             autocomplete="given-name" inputmode="text">
+      <div class="ob-field-error" id="err-name" role="alert"></div>
     </div>
 
-    <!-- SLIDE 2: PROFILE — Sex, Birthday -->
-    <div class="ob-slide">
-      <div class="ob-slide-icon" style="background:var(--card2)"><span>🎂</span></div>
-      <div class="ob-h1">Your <span class="hl">Profile</span></div>
-      <div class="ob-p">Used to calculate your exact metabolic rate using the Mifflin-St Jeor formula.</div>
 
+    <!-- ══════════════════════════════ SLIDE 2 — PROFILE -->
+    <div class="ob-slide" id="ob-slide-2">
+      <div class="ob-slide-icon"><span>🎂</span></div>
+      <div class="ob-h1">Your <span class="hl">Profile</span></div>
+      <div class="ob-p">Used for your exact Mifflin-St Jeor metabolic rate calculation.</div>
+
+      <!-- Gender -->
       <label class="ob-label">Biological Sex</label>
-      <div class="gender-row" id="genderRow">
-        <div class="gender-btn sel" data-val="male" onclick="selGender(this)">
-          <div class="g-icon">♂️</div>
-          <div class="g-label">Male</div>
-        </div>
-        <div class="gender-btn" data-val="female" onclick="selGender(this)">
-          <div class="g-icon">♀️</div>
-          <div class="g-label">Female</div>
-        </div>
+      <div class="ob-sel-row" role="group" aria-label="Biological sex">
+        <button class="ob-sel-btn is-selected" data-sel-group="gender" data-sel-val="male">
+          <span class="ob-sel-icon">♂️</span>
+          <span class="ob-sel-label">Male</span>
+        </button>
+        <button class="ob-sel-btn" data-sel-group="gender" data-sel-val="female">
+          <span class="ob-sel-icon">♀️</span>
+          <span class="ob-sel-label">Female</span>
+        </button>
       </div>
 
-      <label class="ob-label">Date of Birth</label>
+      <!-- DOB -->
+      <label class="ob-label" for="f-dob">Date of Birth</label>
       <input class="ob-field" id="f-dob" type="date" style="color-scheme:dark">
 
+      <!-- Height / Weight -->
       <div class="ob-field-row">
         <div class="ob-group">
-          <label class="ob-label">Height (cm)</label>
-          <input class="ob-field" id="f-height" oninput="liveWeightCheck()" type="number" placeholder="175" min="100" max="250" style="margin-bottom:0">
+          <label class="ob-label" for="f-height">Height (cm)</label>
+          <input class="ob-field" id="f-height" type="number"
+                 placeholder="175" min="100" max="250" inputmode="decimal"
+                 style="margin-bottom:0">
         </div>
         <div class="ob-group">
-          <label class="ob-label">Weight (kg)</label>
-          <input class="ob-field" id="f-weight" oninput="liveWeightCheck()" type="number" placeholder="75" min="30" max="300" style="margin-bottom:0" oninput="liveWeightCheck()">
+          <label class="ob-label" for="f-weight">Weight (kg)</label>
+          <input class="ob-field" id="f-weight" type="number"
+                 placeholder="75" min="30" max="300" inputmode="decimal"
+                 style="margin-bottom:0">
         </div>
       </div>
+
+      <!-- BMI safety error (blocks Next) -->
+      <div class="ob-field-error ob-field-error--bmi" id="profileBmiError" role="alert"></div>
     </div>
 
-    <!-- SLIDE 3: ACTIVITY — Swipeable cards -->
-    <div class="ob-slide">
-      <div class="ob-slide-icon" style="background:var(--card2)"><span>⚡</span></div>
+
+    <!-- ══════════════════════════════ SLIDE 3 — ACTIVITY -->
+    <div class="ob-slide" id="ob-slide-3">
+      <div class="ob-slide-icon"><span>⚡</span></div>
       <div class="ob-h1">Activity <span class="hl">Level</span></div>
-      <div class="ob-p">Select your baseline day-to-day activity level for accurate TDEE calculation.</div>
+      <div class="ob-p">Pick the level that best describes your typical week. This drives your TDEE.</div>
 
-      <div class="activity-card sel" id="actCard">
-        <div class="act-icon-wrap">🏃</div>
-        <div class="act-title" id="actTitle">Moderately Active</div>
-        <div class="act-desc" id="actDesc">Jobs that keep you on your feet most of the day, or moderate intensity exercise 3–5 days per week.</div>
-        <div class="act-example">Example:</div>
-        <div class="act-example-text" id="actEx">Gym sessions, running, or active jobs like retail.</div>
-      </div>
-      <div id="actDots" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0">
-        <button onclick="setActivity((window.U&&window.U.actIdx!=null?window.U.actIdx:2)-1)" style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:10px 22px;color:var(--text);font-size:1.4rem;cursor:pointer;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent">‹</button>
-        <div style="flex:1;text-align:center">
-          <div id="actTitle" style="font-weight:800;font-size:.95rem;margin-bottom:5px">Moderately Active</div>
-          <div id="actDesc" style="font-size:.7rem;color:var(--muted2);line-height:1.5">3–5 days exercise or moderate-intensity job.</div>
+      <!-- Activity card -->
+      <div class="ob-act-card" id="actCard">
+        <div class="ob-act-card-top">
+          <div class="ob-act-icon" id="actCardIcon">🏃</div>
+          <div class="ob-act-count" id="actCardCount">3 / 6</div>
         </div>
-        <button onclick="setActivity((window.U&&window.U.actIdx!=null?window.U.actIdx:2)+1)" style="background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:10px 22px;color:var(--text);font-size:1.4rem;cursor:pointer;line-height:1;flex-shrink:0;-webkit-tap-highlight-color:transparent">›</button>
+        <div class="ob-act-name" id="actCardName">Moderately Active</div>
+        <div class="ob-act-desc" id="actCardDesc">3–5 days exercise or moderate-intensity job.</div>
+        <div class="ob-act-ex">
+          <span class="ob-act-ex-label">Example:</span>
+          <span id="actCardEx">Gym sessions, running, or active jobs like retail.</span>
+        </div>
+      </div>
+
+      <!-- Arrow nav -->
+      <div class="ob-act-nav">
+        <button class="ob-act-arrow" data-action="act-prev" aria-label="Previous activity level">‹</button>
+        <div class="ob-act-dots" id="actDots">
+          <span class="ob-act-dot" data-idx="0"></span>
+          <span class="ob-act-dot" data-idx="1"></span>
+          <span class="ob-act-dot is-active" data-idx="2"></span>
+          <span class="ob-act-dot" data-idx="3"></span>
+          <span class="ob-act-dot" data-idx="4"></span>
+          <span class="ob-act-dot" data-idx="5"></span>
+        </div>
+        <button class="ob-act-arrow" data-action="act-next" aria-label="Next activity level">›</button>
       </div>
     </div>
 
-    <!-- SLIDE 4: GOAL TYPE + GOAL WEIGHT -->
-    <div class="ob-slide">
-      <div class="ob-slide-icon" style="background:var(--card2)"><span>🎯</span></div>
+
+    <!-- ══════════════════════════════ SLIDE 4 — GOAL TYPE + GOAL WEIGHT -->
+    <div class="ob-slide" id="ob-slide-4">
+      <div class="ob-slide-icon"><span>🎯</span></div>
       <div class="ob-h1">Your <span class="hl">Goal</span></div>
-      <div class="ob-p">We'll calculate your calorie budget and macro splits based on this.</div>
+      <div class="ob-p">Sets your calorie budget direction and macro splits.</div>
 
-      <div class="goal-grid" id="goalGrid">
-        <div class="goal-btn sel" data-val="cut" onclick="selGoal(this)">
-          <div class="g-em">🔥</div>
-          <div class="g-t">Lose Fat</div>
-          <div class="g-s">Calorie deficit</div>
-        </div>
-        <div class="goal-btn" data-val="bulk" onclick="selGoal(this)">
-          <div class="g-em">💪</div>
-          <div class="g-t">Build Muscle</div>
-          <div class="g-s">Calorie surplus</div>
-        </div>
-        <div class="goal-btn" data-val="maintain" onclick="selGoal(this)">
-          <div class="g-em">⚖️</div>
-          <div class="g-t">Maintain</div>
-          <div class="g-s">Recomp mode</div>
-        </div>
-        <div class="goal-btn" data-val="perform" onclick="selGoal(this)">
-          <div class="g-em">⚡</div>
-          <div class="g-t">Performance</div>
-          <div class="g-s">Athlete mode</div>
-        </div>
+      <!-- Goal selector -->
+      <div class="ob-goal-grid" role="group" aria-label="Fitness goal">
+        <button class="ob-goal-btn is-selected" data-sel-group="goal" data-sel-val="cut">
+          <span class="ob-goal-icon">🔥</span>
+          <span class="ob-goal-title">Lose Fat</span>
+          <span class="ob-goal-sub">Calorie deficit</span>
+        </button>
+        <button class="ob-goal-btn" data-sel-group="goal" data-sel-val="bulk">
+          <span class="ob-goal-icon">💪</span>
+          <span class="ob-goal-title">Build Muscle</span>
+          <span class="ob-goal-sub">Calorie surplus</span>
+        </button>
+        <button class="ob-goal-btn" data-sel-group="goal" data-sel-val="maintain">
+          <span class="ob-goal-icon">⚖️</span>
+          <span class="ob-goal-title">Maintain</span>
+          <span class="ob-goal-sub">Recomp mode</span>
+        </button>
+        <button class="ob-goal-btn" data-sel-group="goal" data-sel-val="perform">
+          <span class="ob-goal-icon">⚡</span>
+          <span class="ob-goal-title">Performance</span>
+          <span class="ob-goal-sub">Athlete mode</span>
+        </button>
       </div>
 
-      <label class="ob-label">Goal Weight (kg)</label>
-      <input class="ob-field" id="f-goalwt" oninput="checkGoalWeight()" type="number" placeholder="e.g. 70" min="30" max="300" oninput="checkGoalWeight()">
-      <div class="ob-error-msg" id="goalWtError">⚠️ This goal weight would put your BMI below the safe range (18.5). Please set a healthier target.</div>
-      <div class="ob-warning-msg" id="goalWtWarn">⚠️ This goal is above the healthy BMI range. Consider targeting a BMI between 18.5–24.9 for best health outcomes.</div>
+      <!-- Goal weight -->
+      <label class="ob-label" for="f-goalwt">Goal Weight (kg)</label>
+      <input class="ob-field" id="f-goalwt" type="number"
+             placeholder="e.g. 70" min="30" max="300" inputmode="decimal">
+
+      <!-- BMI hard block (bmi < 15 or > 40) -->
+      <div class="ob-field-error" id="goalWtError" role="alert"></div>
+      <!-- BMI soft warning (bmi outside 18.5–30 but not blocking) -->
+      <div class="ob-field-warn" id="goalWtWarn" role="status"></div>
     </div>
 
-    <!-- SLIDE 5: GOAL RATE + OVERVIEW -->
-    <div class="ob-slide">
-      <div class="ob-slide-icon" style="background:var(--card2)"><span>📊</span></div>
-      <div class="ob-h1">Goal <span class="hl">Rate</span></div>
-      <div class="ob-p">How fast do you want to reach your goal? Slower = more sustainable.</div>
 
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 18px;margin-bottom:14px;">
-        <div style="font-family:var(--ff-display);font-size:0.8rem;font-weight:700;color:var(--muted2);text-align:center;margin-bottom:12px;letter-spacing:0.5px;text-transform:uppercase">Weekly Goal Rate</div>
-        <div class="rate-stepper">
-          <button class="rate-btn" onclick="changeRate(-1)">−</button>
-          <div class="rate-val" id="rateDisplay" style="display:none">−0.50 kg/week</div>
-          <button class="rate-btn" onclick="changeRate(1)">+</button>
+    <!-- ══════════════════════════════ SLIDE 5 — RATE + PLAN REVIEW -->
+    <div class="ob-slide" id="ob-slide-5">
+      <div class="ob-slide-icon"><span>📊</span></div>
+      <div class="ob-h1">Goal <span class="hl">Rate</span></div>
+      <div class="ob-p">Slower is more sustainable. Extreme rates increase muscle loss risk.</div>
+
+      <!-- Rate stepper -->
+      <div class="ob-rate-card">
+        <div class="ob-rate-header">Weekly Rate</div>
+        <div class="ob-rate-row">
+          <button class="ob-rate-btn" id="rate-dec-btn" data-action="rate-dec" aria-label="Slower">−</button>
+          <div class="ob-rate-label" id="rateDisplayLabel">−0.50 kg / week</div>
+          <button class="ob-rate-btn" id="rate-inc-btn" data-action="rate-inc" aria-label="Faster">+</button>
         </div>
-        <div class="ob-warning-msg" id="rateWarn" style="margin-bottom:0">⚠️ Extreme rate. This creates a very large deficit. Please consult a dietitian before starting.</div>
+        <div class="ob-field-warn" id="rateWarn" role="status"></div>
       </div>
 
-      <div class="goal-overview" id="goalOverview">
-        <div class="go-hero">
-          <div class="go-icon-wrap">📋</div>
+      <!-- Plan overview -->
+      <div class="ob-plan-card" id="goalOverview">
+        <div class="ob-plan-header">
+          <div class="ob-plan-icon">📋</div>
           <div>
-            <div class="go-title" id="goTitle">Lose Weight</div>
-            <div class="go-sub" id="goSub">−0.50 kg per week</div>
+            <div class="ob-plan-title" id="goTitle">Lose Weight</div>
+            <div class="ob-plan-sub"   id="goSub">−0.50 kg per week</div>
           </div>
         </div>
-        <div class="go-rows">
-          <div class="go-row"><span class="go-row-label">Energy Target</span><span class="go-row-val" id="goEnergy">— kcal</span></div>
-          <div class="go-row"><span class="go-row-label">Daily Deficit/Surplus</span><span class="go-row-val" id="goDelta">—</span></div>
-          <div class="go-row"><span class="go-row-label">Goal Forecast</span><span class="go-row-val" id="goForecast">—</span></div>
-          <div class="go-row"><span class="go-row-label">Protein</span><span class="go-row-val" id="goPro">—g/day</span></div>
-          <div class="go-row"><span class="go-row-label">Carbs</span><span class="go-row-val" id="goCarb">—g/day</span></div>
-          <div class="go-row"><span class="go-row-label">Fats</span><span class="go-row-val" id="goFat">—g/day</span></div>
+        <div class="ob-plan-rows">
+          <div class="ob-plan-row"><span>Energy Target</span>      <span id="goEnergy">—</span></div>
+          <div class="ob-plan-row"><span>Daily Deficit/Surplus</span><span id="goDelta">—</span></div>
+          <div class="ob-plan-row"><span>Goal Forecast</span>      <span id="goForecast">—</span></div>
+          <div class="ob-plan-row"><span>Protein</span>            <span id="goPro">—</span></div>
+          <div class="ob-plan-row"><span>Carbs</span>              <span id="goCarb">—</span></div>
+          <div class="ob-plan-row"><span>Fats</span>               <span id="goFat">—</span></div>
         </div>
-        <div class="bmi-bar-wrap">
-          <div style="font-family:var(--ff-display);font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">BMI — <span id="bmiVal">—</span> (<span id="bmiLabel">—</span>)</div>
-          <div class="bmi-scale"><div class="bmi-needle" id="bmiNeedle" style="left:50%"></div></div>
-          <div class="bmi-labels"><span>Underweight</span><span>Normal</span><span>Overweight</span><span>Obese</span></div>
+        <!-- BMI gauge -->
+        <div class="ob-bmi-wrap">
+          <div class="ob-bmi-header">
+            BMI — <strong id="bmiVal">—</strong>
+            <span class="ob-bmi-label" id="bmiLabel">—</span>
+          </div>
+          <div class="ob-bmi-scale">
+            <div class="ob-bmi-needle" id="bmiNeedle" style="left:50%"></div>
+          </div>
+          <div class="ob-bmi-ticks">
+            <span>Underweight</span>
+            <span>Normal</span>
+            <span>Overweight</span>
+            <span>Obese</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- SLIDE 6: ACCOUNT DETAILS -->
-    <div class="ob-slide">
-      <div class="ob-slide-icon" style="background:var(--card2)"><span>🔐</span></div>
+
+    <!-- ══════════════════════════════ SLIDE 6 — ACCOUNT -->
+    <div class="ob-slide" id="ob-slide-6">
+      <div class="ob-slide-icon"><span>🔐</span></div>
       <div class="ob-h1">Create Your<br><span class="hl">Account</span></div>
-      <div class="ob-p">Secure your progress and sync across devices.</div>
+      <div class="ob-p">Secure your progress. We'll sync your macros across devices.</div>
 
       <div class="ob-account-card">
-        <label class="ob-label">First Name</label>
-        <input class="ob-field" id="a-name" type="text" placeholder="Your name" autocomplete="given-name">
+        <label class="ob-label" for="a-name">First Name</label>
+        <input class="ob-field" id="a-name"  type="text"     placeholder="Your name"
+               autocomplete="given-name">
 
-        <label class="ob-label">Email Address</label>
-        <input class="ob-field" id="a-email" type="email" placeholder="you@email.com" autocomplete="email">
+        <label class="ob-label" for="a-email">Email Address</label>
+        <input class="ob-field" id="a-email" type="email"    placeholder="you@email.com"
+               autocomplete="email" inputmode="email">
 
-        <label class="ob-label">Password</label>
-        <input class="ob-field" id="a-pass" type="password" placeholder="Min. 8 characters" autocomplete="new-password">
+        <label class="ob-label" for="a-pass">Password</label>
+        <input class="ob-field" id="a-pass"  type="password" placeholder="Min. 8 characters"
+               autocomplete="new-password">
 
-        <label class="ob-label">Confirm Password</label>
-        <input class="ob-field" id="a-pass2" type="password" placeholder="Repeat password" autocomplete="new-password" style="margin-bottom:0">
+        <label class="ob-label" for="a-pass2">Confirm Password</label>
+        <input class="ob-field" id="a-pass2" type="password" placeholder="Repeat password"
+               autocomplete="new-password" style="margin-bottom:0">
       </div>
-      <div class="ob-error-msg" id="accountError"></div>
+      <div class="ob-field-error" id="accountError" role="alert"></div>
     </div>
 
-    <!-- SLIDE 7: T&C -->
-    <div class="ob-slide">
-      <div class="ob-slide-icon" style="background:var(--card2)"><span>📜</span></div>
+
+    <!-- ══════════════════════════════ SLIDE 7 — TERMS -->
+    <div class="ob-slide" id="ob-slide-7">
+      <div class="ob-slide-icon"><span>📜</span></div>
       <div class="ob-h1">Terms &<br><span class="hl">Privacy</span></div>
-      <div class="ob-p">Please read and accept before continuing.</div>
+      <div class="ob-p">Read and accept before creating your account.</div>
 
-      <div class="tnc-scroll">
+      <div class="ob-tnc-scroll">
         <h4>Terms of Service</h4>
-        <p>By using AnthrosAI, you agree to these terms. AnthrosAI provides fitness tracking tools and AI-powered coaching for informational purposes only. This is not medical advice.</p>
+        <p>By using AnthrosAI you agree to these terms. AnthrosAI provides fitness tracking tools and AI coaching for informational purposes only. This is not medical advice.</p>
         <h4>No Medical Advice</h4>
-        <p>The information, coaching, and nutritional data provided by AnthrosAI is for informational purposes only and does not constitute medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before starting any fitness or nutrition program.</p>
+        <p>All information, coaching, and nutritional data is for informational purposes only and does not constitute medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before starting any fitness or nutrition programme.</p>
         <h4>User Responsibility</h4>
-        <p>You use the service at your own risk. AnthrosAI is provided "as is" without warranties of any kind. We disclaim all responsibility for inaccuracies, errors, or service failures. You acknowledge that physical exercise carries inherent risk.</p>
+        <p>You use the service at your own risk. AnthrosAI is provided "as is" without warranties. Physical exercise carries inherent risk. You acknowledge this and release AnthrosAI from liability for injury.</p>
         <h4>BMI & Safety Warnings</h4>
-        <p>AnthrosAI uses standard BMI calculations and Mifflin-St Jeor formulas to provide personalized recommendations. These are statistical averages and may not apply to all individuals. The app will warn you if goal weights fall outside healthy BMI ranges (18.5–29.9).</p>
+        <p>AnthrosAI uses standard BMI calculations and Mifflin-St Jeor formulas. These are statistical averages. Goal weights that fall outside a safe BMI range (15–40) will be blocked by the app.</p>
         <h4>Data & Privacy</h4>
-        <p>Your personal data (name, biometrics, food logs, workout history) is used solely to provide personalized fitness coaching. We do not sell your personal data to third parties. AI coaching responses are processed by Anthropic's Claude API under their privacy policy.</p>
+        <p>Your personal data (name, biometrics, food logs, workout history) is used solely to provide personalised coaching. We do not sell your data. AI responses are processed by Groq via a secure server-side proxy — your API key is never exposed to the browser.</p>
         <h4>AI Coaching Disclaimer</h4>
-        <p>AI responses are generated by Claude (Anthropic) and may occasionally contain errors. Always apply critical judgment and consult a professional for major health decisions.</p>
+        <p>AI responses may occasionally contain errors. Always apply critical judgement and consult a professional for major health decisions.</p>
         <h4>Minimum Age</h4>
-        <p>You must be at least 16 years old to use AnthrosAI. By continuing you confirm you meet this requirement.</p>
+        <p>You must be at least 16 years old to use AnthrosAI. By continuing you confirm this.</p>
       </div>
 
-      <div class="tnc-checks" id="tncChecks">
-        <div class="tnc-check" onclick="toggleTnc(this,'tos')">
-          <div class="tnc-check-box" data-key="tos"></div>
-          <div><div class="tnc-check-text">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</div><div class="tnc-req">Required</div></div>
+      <!-- T&C checkboxes — no onclick; data-tnc-key drives delegation -->
+      <div class="ob-tnc-checks" id="tncChecks">
+
+        <div class="ob-tnc-row" data-tnc-key="tos" role="checkbox" aria-checked="false" tabindex="0">
+          <div class="ob-tnc-box" id="tnc-box-tos"></div>
+          <div class="ob-tnc-text">
+            I agree to the <a href="#" onclick="return false">Terms of Service</a>
+            and <a href="#" onclick="return false">Privacy Policy</a>.
+            <span class="ob-tnc-req">Required</span>
+          </div>
         </div>
-        <div class="tnc-check" onclick="toggleTnc(this,'disclaimer')">
-          <div class="tnc-check-box" data-key="disclaimer"></div>
-          <div><div class="tnc-check-text">I understand this app provides informational content only, not medical advice.</div><div class="tnc-req">Required</div></div>
+
+        <div class="ob-tnc-row" data-tnc-key="disclaimer" role="checkbox" aria-checked="false" tabindex="0">
+          <div class="ob-tnc-box" id="tnc-box-disclaimer"></div>
+          <div class="ob-tnc-text">
+            I understand this app provides informational content only, not medical advice.
+            <span class="ob-tnc-req">Required</span>
+          </div>
         </div>
-        <div class="tnc-check" onclick="toggleTnc(this,'marketing')">
-          <div class="tnc-check-box" data-key="marketing"></div>
-          <div><div class="tnc-check-text">I agree to receive newsletters and fitness tips. (Optional)</div></div>
+
+        <div class="ob-tnc-row" data-tnc-key="marketing" role="checkbox" aria-checked="false" tabindex="0">
+          <div class="ob-tnc-box" id="tnc-box-marketing"></div>
+          <div class="ob-tnc-text">
+            I agree to receive newsletters and fitness tips. <em>(Optional)</em>
+          </div>
         </div>
+
       </div>
-      <div class="ob-error-msg" id="tncError">Please accept the required terms to continue.</div>
+      <div class="ob-field-error" id="tncError" role="alert"></div>
     </div>
 
-    <!-- SLIDE 8: EMAIL VERIFICATION -->
-    <div class="ob-slide" id="verifySlide">
-      <div class="ob-slide-icon" style="background:var(--card2)"><span>✉️</span></div>
+
+    <!-- ══════════════════════════════ SLIDE 8 — EMAIL VERIFY -->
+    <div class="ob-slide" id="ob-slide-8">
+      <div class="ob-slide-icon"><span>✉️</span></div>
       <div class="ob-h1">Verify Your<br><span class="hl">Email</span></div>
-      <div class="ob-p">We've sent a verification link to protect your account from impersonation.</div>
+      <div class="ob-p">We've sent a link to protect your account.</div>
 
-      <div class="verify-card">
-        <span class="verify-icon">📬</span>
-        <div style="font-family:var(--ff-display);font-size:1rem;font-weight:700">Check your inbox</div>
-        <div class="verify-email" id="verifyEmailShow">—</div>
-        <p style="font-size:0.78rem;color:var(--muted2);margin-top:8px;line-height:1.6">Click the link in the email to verify your account and unlock full access to AnthrosAI.</p>
-        <div class="verify-status"><div class="verify-dot"></div>Waiting for verification</div>
+      <div class="ob-verify-card">
+        <span class="ob-verify-icon">📬</span>
+        <div class="ob-verify-title">Check your inbox</div>
+        <div class="ob-verify-email" id="verifyEmailShow">—</div>
+        <p class="ob-verify-note">Click the link in the email to verify and unlock full AnthrosAI access.</p>
+        <div class="ob-verify-status">
+          <div class="ob-verify-dot"></div>
+          Waiting for verification…
+        </div>
       </div>
 
-      <div style="display:flex;gap:10px;margin-bottom:12px;">
-        <button onclick="resendEmail()" style="flex:1;background:var(--card);border:1.5px solid var(--border2);color:var(--muted2);padding:12px;border-radius:14px;font-family:var(--ff-display);font-size:0.85rem;font-weight:700;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--cal)'" onmouseout="this.style.borderColor='var(--border2)'">Resend Email</button>
-        <button onclick="launchApp()" style="flex:1;background:linear-gradient(135deg,var(--ai),var(--ai2));border:none;color:white;padding:12px;border-radius:14px;font-family:var(--ff-display);font-size:0.85rem;font-weight:700;cursor:pointer;">Continue Anyway →</button>
+      <div class="ob-verify-actions">
+        <button class="ob-verify-btn-ghost" id="resend-email-btn" data-action="resend-email">
+          Resend Email
+        </button>
+        <button class="ob-verify-btn-primary" data-action="continue-anyway">
+          Continue Anyway →
+        </button>
       </div>
-      <p style="font-size:0.72rem;color:var(--muted);text-align:center;line-height:1.6">*You can still use AnthrosAI while awaiting verification. Some features may be limited until your email is confirmed.</p>
+
+      <p class="ob-verify-footnote">
+        * You can still use AnthrosAI while awaiting verification. Some features may be limited.
+      </p>
     </div>
 
-  </div><!-- end ob-slides -->
-  </div><!-- end ob-slides-wrap -->
 
+  </div><!-- /ob-slides -->
+  </div><!-- /ob-slides-wrap -->
+
+
+  <!-- ── Bottom CTA ─────────────────────────────────────── -->
   <div class="ob-bottom">
-    <button class="ob-cta" id="obCta" onclick="obNext()">Get Started →</button>
-    <span class="ob-skip" id="obSkipLink" onclick="obSkip()">Skip for now</span>
+    <!-- "Complete all steps" intentionally removed — all users complete flow -->
+    <button class="ob-cta" id="obCta" data-action="ob-next">
+      Get Started →
+    </button>
+    <!-- Step-level error fallback (field errors shown inline) -->
+    <div class="ob-step-error" id="stepError" role="alert"></div>
   </div>
-</div><!-- end onboarding -->
+
+</div><!-- /onboarding screen -->
 
 <!-- ==================== MAIN APP ==================== -->
 
