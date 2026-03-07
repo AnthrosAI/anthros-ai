@@ -3144,3 +3144,362 @@ input, textarea, select {
   border-color: var(--border);
 }
 input::placeholder, textarea::placeholder { color: var(--muted); }
+
+
+/* ═══════════════════════════════════════════════════════════
+   LAYOUT FIX v11 — Proper mobile viewport containment
+   ═══════════════════════════════════════════════════════════ */
+
+/* Lock html/body — no double scroll */
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  position: fixed;
+  top: 0; left: 0;
+}
+
+/* Every screen = full viewport, flex column, no overflow */
+.screen {
+  display: none !important;
+  position: fixed !important;
+  inset: 0 !important;
+  overflow: hidden !important;
+  flex-direction: column;
+  height: 100dvh !important;
+  height: 100vh !important;
+}
+.screen.active {
+  display: flex !important;
+}
+
+/* #app: topnav fixed height, content fills rest */
+#app.active {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100dvh !important;
+  height: 100vh !important;
+  overflow: hidden !important;
+  background: var(--bg);
+}
+
+.app-topnav {
+  flex-shrink: 0;
+  z-index: 200;
+}
+
+/* app-content: ONLY this scrolls */
+.app-content {
+  flex: 1 1 0%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  min-height: 0;
+}
+
+/* Pages: no independent scroll — let app-content handle it */
+.page {
+  display: none;
+  padding: 0 0 20px;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
+}
+.page.active {
+  display: block;
+}
+
+/* Onboarding screen also properly contained */
+#onboarding {
+  display: none !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+#onboarding.active {
+  display: flex !important;
+}
+.ob-slides-wrap {
+  flex: 1 1 0%;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Bottom nav: always anchored at bottom */
+.bottom-nav {
+  position: fixed !important;
+  bottom: 0; left: 0; right: 0;
+  z-index: 300;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   WEEK STRIP CALENDAR — CalAI Style
+   ═══════════════════════════════════════════════════════════ */
+
+.week-strip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.week-strip::-webkit-scrollbar { display: none; }
+
+.week-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 36px;
+  padding: 8px 4px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all .18s ease;
+  gap: 4px;
+  border: 1.5px solid transparent;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.week-day:active { transform: scale(.93); }
+
+.week-day-letter {
+  font-size: .58rem;
+  font-weight: 700;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: var(--ff-display);
+}
+.week-day-num {
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--ff-display);
+  line-height: 1;
+}
+.week-day-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background .18s;
+}
+
+/* Future days: muted */
+.week-day.future .week-day-num,
+.week-day.future .week-day-letter { opacity: .35; }
+
+/* Days with data: show dot */
+.week-day.has-data .week-day-dot {
+  background: var(--cal);
+}
+
+/* Selected day */
+.week-day.selected {
+  background: var(--cal);
+  border-color: transparent;
+}
+.week-day.selected .week-day-letter,
+.week-day.selected .week-day-num { color: #fff; }
+.week-day.selected .week-day-dot { background: rgba(255,255,255,.6); }
+
+/* Today (not selected) */
+.week-day.today:not(.selected) {
+  border-color: var(--cal);
+  background: rgba(255, 138, 0, .07);
+}
+.week-day.today:not(.selected) .week-day-num { color: var(--cal); }
+
+/* Week header row */
+.week-strip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 2px;
+}
+.week-strip-label {
+  font-size: .65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-family: var(--ff-display);
+}
+.week-strip-today-btn {
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--cal);
+  background: rgba(255,138,0,.1);
+  border: 1px solid rgba(255,138,0,.2);
+  border-radius: 20px;
+  padding: 3px 10px;
+  cursor: pointer;
+  display: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: var(--ff-display);
+}
+.week-strip-today-btn.visible { display: block; }
+
+/* ═══════════════════════════════════════════════════════════
+   GREETING — tighter in v11
+   ═══════════════════════════════════════════════════════════ */
+.greeting {
+  padding: 10px 16px 4px;
+  margin-bottom: 0;
+}
+.greeting h2 {
+  font-size: 1.5rem;
+  line-height: 1.15;
+  margin-bottom: 2px;
+}
+.greeting p { font-size: .78rem; }
+
+/* ═══════════════════════════════════════════════════════════
+   KEY NUTRIENTS CARD — Cronometer x AnthrosAI
+   ═══════════════════════════════════════════════════════════ */
+
+.key-nutrients-card {
+  margin: 0 16px 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  animation: slideUp .4s .12s ease both;
+}
+
+.kn-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px 10px;
+}
+.kn-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--ff-display);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.kn-title-icon {
+  width: 22px; height: 22px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, var(--green), var(--water));
+  display: flex; align-items: center; justify-content: center;
+  font-size: .7rem;
+}
+.kn-pct-summary {
+  font-size: .68rem;
+  font-weight: 700;
+  color: var(--green);
+  background: rgba(34,197,94,.1);
+  border: 1px solid rgba(34,197,94,.2);
+  border-radius: 20px;
+  padding: 3px 9px;
+}
+
+.kn-list {
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.kn-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 48px;
+  align-items: center;
+  gap: 8px;
+}
+.kn-name {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.kn-name-icon { font-size: .75rem; }
+
+.kn-bar-track {
+  height: 5px;
+  background: var(--card2);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.kn-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1.2s cubic-bezier(.4,0,.2,1);
+  position: relative;
+}
+.kn-bar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 6px;
+  background: inherit;
+  filter: brightness(1.4);
+  border-radius: 3px;
+}
+
+.kn-val {
+  font-size: .68rem;
+  font-weight: 700;
+  text-align: right;
+  color: var(--muted2);
+  white-space: nowrap;
+}
+.kn-val.met { color: var(--green); }
+.kn-val.over { color: var(--pro); }
+
+/* Divider between rows */
+.kn-row + .kn-row { padding-top: 0; }
+
+/* Light mode card shadows */
+html.light .key-nutrients-card {
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+html.light .week-day {
+  background: rgba(0,0,0,.02);
+}
+html.light .week-day.today:not(.selected) {
+  background: rgba(255,138,0,.07);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   DASHBOARD CARD PADDING FIX
+   ═══════════════════════════════════════════════════════════ */
+
+/* All dashboard cards get consistent 16px side margin */
+.calring-card       { margin: 12px 16px; }
+.stats4             { margin: 0 16px 12px; }
+.water-widget       { margin: 0 16px 12px !important; }
+.steps-card         { margin: 0 16px 12px; }
+.weekly-chart-card  { margin: 0 16px 12px; }
+.meal-sections      { margin: 0 16px 12px; }
+#moodTracker        { margin: 0 16px 12px; }
+.daily-report-btn   { margin: 0 16px 12px; }
+
+/* ─ Net calories row ─ */
+#netCalRow {
+  margin: 0 16px 12px !important;
+  border-radius: 16px !important;
+}
+
+/* Remove old padding from .page#pg-dash since cards have their own margin */
+#pg-dash { padding: 0 0 100px !important; }
+
+/* Steps ring: fix dark ring track for light mode */
+html.light .steps-ring-svg circle:first-child { stroke: rgba(0,0,0,.07); }
