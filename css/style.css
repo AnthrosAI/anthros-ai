@@ -3179,8 +3179,9 @@ html, body {
   inset: 0 !important;
   overflow: hidden !important;
   flex-direction: column;
-  height: 100dvh !important;
-  height: 100vh !important;
+  height: 100vh !important;          /* fallback */
+  height: 100dvh !important;         /* preferred: excludes browser chrome */
+  max-height: -webkit-fill-available; /* Safari PWA safe area */
 }
 .screen.active {
   display: flex !important;
@@ -3190,8 +3191,9 @@ html, body {
 #app.active {
   display: flex !important;
   flex-direction: column !important;
-  height: 100dvh !important;
-  height: 100vh !important;
+  height: 100vh !important;       /* fallback */
+  height: 100dvh !important;      /* preferred */
+  max-height: -webkit-fill-available;
   overflow: hidden !important;
   background: var(--bg);
 }
@@ -3224,11 +3226,18 @@ html, body {
   display: block;
 }
 
-/* Onboarding screen also properly contained */
+/* Onboarding screen: full viewport, flex column */
 #onboarding {
   display: none !important;
+  position: fixed !important;
+  inset: 0 !important;
   flex-direction: column !important;
   overflow: hidden !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-height: -webkit-fill-available;
+  width: 100% !important;
+  box-sizing: border-box;
 }
 #onboarding.active {
   display: flex !important;
@@ -3236,7 +3245,9 @@ html, body {
 .ob-slides-wrap {
   flex: 1 1 0%;
   overflow: hidden;
+  overflow-x: hidden;
   min-height: 0;
+  width: 100%;
 }
 
 /* Bottom nav: always anchored at bottom */
@@ -3557,10 +3568,24 @@ p, .greeting p, .ob-slide-sub, .mbar-name, .kn-name, .stat4-lbl {
   padding-right: 20px;
 }
 .ob-slide {
-  padding: 8px 24px calc(env(safe-area-inset-bottom, 20px) + 20px);
+  padding: 8px 24px 20px; /* no bottom safe-area — ob-bottom handles it */
+  box-sizing: border-box;
+  max-width: 100vw;        /* prevent content overflow right */
+  overflow-x: hidden;
 }
-.ob-cta-bar {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px) !important;
+/* ob-bottom (wraps ob-cta button) handles safe area */
+.ob-bottom {
+  flex-shrink: 0 !important;
+  padding: 12px 20px calc(env(safe-area-inset-bottom, 0px) + 16px) !important;
+  background: var(--bg);
+  position: relative;
+  z-index: 10;
+}
+.ob-cta {
+  width: 100%;
+  touch-action: manipulation; /* no 300ms tap delay */
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto !important;
 }
 
 /* ═══════════════════════════════════════════════════════════
