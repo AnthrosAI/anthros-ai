@@ -598,7 +598,6 @@ var AUTH = (function () {
 
       return 'pending';
     },
-    },
 
     7: function () {
       if (!state.tnc.tos || !state.tnc.disclaimer) {
@@ -657,9 +656,14 @@ var AUTH = (function () {
     showErr('stepError', '');
 
     var err = validators[state.step] ? validators[state.step]() : null;
+    // 'pending' = async op in flight (Supabase signup) — don't block navigation
     if (err && err !== 'pending') {
+      // showErr('stepError', err); — field-level errors already shown
       return;
     }
+
+    // If async op is pending, it will call goTo(8) itself when done
+    if (err === 'pending') return;
 
     if (state.step < STEPS) {
       goTo(state.step + 1);
