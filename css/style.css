@@ -1043,7 +1043,13 @@ html.light #loadingScreen .loading-text { color: rgba(0,0,0,.35); }
 .ex-muscle { font-size:0.62rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); background:var(--bg2); border:1px solid var(--border); padding:2px 8px; border-radius:4px; }
 
 /* ---- AI PAGE ---- */
-.ai-page { display:none; flex-direction:column; height:calc(100dvh - 130px); padding:0; }
+.ai-page {
+  display:none;
+  flex-direction:column;
+  height:100%;
+  min-height:0;
+  padding:0;
+}
 .ai-page
 
 .ai-topbar {
@@ -1051,7 +1057,7 @@ html.light #loadingScreen .loading-text { color: rgba(0,0,0,.35); }
   border-bottom:1px solid var(--border);
   display:flex; align-items:center; gap:12px;
   flex-shrink:0;
-  background:rgba(112,0,255,0.04);
+  background:var(--card);
 }
 .ai-orb {
   width:46px; height:46px; border-radius:50%;
@@ -1075,7 +1081,7 @@ html.light #loadingScreen .loading-text { color: rgba(0,0,0,.35); }
   padding:4px 10px; border-radius:20px;
 }
 
-.ai-msgs { flex:1; overflow-y:auto; padding:16px 18px; display:flex; flex-direction:column; gap:12px; }
+.ai-msgs { flex:1; overflow-y:auto; padding:16px 18px; display:flex; flex-direction:column; gap:12px; background:var(--bg); }
 .ai-msgs::-webkit-scrollbar { width:3px; }
 
 .msg-ai { align-self:flex-start; max-width:88%; }
@@ -1113,9 +1119,9 @@ html.light #loadingScreen .loading-text { color: rgba(0,0,0,.35); }
 .ai-input-row {
   display:flex; gap:10px;
   padding:12px 18px;
-  border-top:1px solid var(--nav-border);
+  border-top:1px solid var(--border);
   flex-shrink:0;
-  background:rgba(12,12,16,0.95);
+  background:var(--nav-bg);
 }
 .ai-txt {
   flex:1; background:var(--card2); border:1.5px solid var(--border2);
@@ -1491,7 +1497,7 @@ html.light #loadingScreen .loading-text { color: rgba(0,0,0,.35); }
 .meal-chevron { font-size:.85rem; color:var(--muted); transition:transform .2s; }
 .meal-items { padding:0 14px 12px; display:flex; flex-direction:column; gap:6px; }
 .meal-item { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-top:1px solid var(--border); }
-.mi-name { font-size:.85rem; font-weight:600; color: var(--text); }
+.mi-name { font-size:.85rem; font-weight:600; }
 .mi-macros { font-size:.72rem; color:var(--muted2); margin-top:2px; }
 .mi-cals { font-family:var(--ff); font-size:.9rem; font-weight:700; }
 .mi-del { background:none; border:none; color:var(--muted); font-size:1.1rem; cursor:pointer; padding:4px; }
@@ -1540,7 +1546,7 @@ html.light #loadingScreen .loading-text { color: rgba(0,0,0,.35); }
 /* More page */
 .more-user-header { display:flex; align-items:center; gap:13px; padding:8px 0 18px; }
 .more-avatar { width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,var(--cal),var(--pro)); display:flex; align-items:center; justify-content:center; font-family:var(--ff); font-size:1.4rem; font-weight:800; color:white; flex-shrink:0; }
-.more-name { font-family:var(--ff); font-size:1.05rem; font-weight:800; color: var(--text); }
+.more-name { font-family:var(--ff); font-size:1.05rem; font-weight:800; }
 .more-email { font-size:.75rem; color:var(--muted2); }
 .more-search-btn { margin-left:auto; background:var(--card); border:1px solid var(--border); border-radius:10px; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; }
 .more-pro-card { background:linear-gradient(135deg,rgba(255,184,0,.12),rgba(255,154,0,.08)); border:1px solid rgba(255,184,0,.25); border-radius:16px; padding:16px; display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; cursor:pointer; }
@@ -1554,7 +1560,7 @@ html.light #loadingScreen .loading-text { color: rgba(0,0,0,.35); }
 .mi-ico { font-size:1.2rem; width:28px; text-align:center; flex-shrink:0; }
 .mi-info { flex:1; }
 .mi-name { font-weight:600; font-size:.88rem; }
-.mi-sub { font-size:.72rem; color: var(--muted2); margin-top:2px; }
+.mi-sub { font-size:.72rem; color:var(--muted2); margin-top:2px; }
 .mi-arrow { color:var(--muted); font-size:1.1rem; }
 
 /* Sleep page */
@@ -2012,11 +2018,7 @@ body {
   text-align: left;
   -webkit-text-size-adjust: 100%;
   font-family: var(--ff-body);
-  color: var(--text);
-  background: var(--bg);
-  margin: 0; padding: 0;
 }
-*, *::before, *::after { box-sizing: border-box; }
 .app-topnav {
   padding-top: calc(14px + env(safe-area-inset-top, 0px)) !important;
 }
@@ -3177,9 +3179,8 @@ html, body {
   inset: 0 !important;
   overflow: hidden !important;
   flex-direction: column;
-  height: 100vh !important; /* fallback */
-  height: 100dvh !important; /* dvh = dynamic viewport, excludes browser chrome */
-  max-height: -webkit-fill-available;
+  height: 100dvh !important;
+  height: 100vh !important;
 }
 .screen.active {
   display: flex !important;
@@ -3189,9 +3190,8 @@ html, body {
 #app.active {
   display: flex !important;
   flex-direction: column !important;
-  height: 100vh !important; /* fallback */
-  height: 100dvh !important; /* preferred */
-  max-height: -webkit-fill-available;
+  height: 100dvh !important;
+  height: 100vh !important;
   overflow: hidden !important;
   background: var(--bg);
 }
@@ -3229,9 +3229,6 @@ html, body {
   display: none !important;
   flex-direction: column !important;
   overflow: hidden !important;
-  height: 100vh !important; /* fallback */
-  height: 100dvh !important; /* preferred */
-  max-height: -webkit-fill-available;
 }
 #onboarding.active {
   display: flex !important;
@@ -3563,31 +3560,25 @@ p, .greeting p, .ob-slide-sub, .mbar-name, .kn-name, .stat4-lbl {
   padding: 8px 24px calc(env(safe-area-inset-bottom, 20px) + 20px);
 }
 .ob-cta-bar {
-  flex-shrink: 0;
-  padding: 12px 20px !important;
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px) !important;
-  background: var(--bg);
 }
 
 /* ═══════════════════════════════════════════════════════════
    CIRCULAR RING CALENDAR — replaces rectangular week-day
    ═══════════════════════════════════════════════════════════ */
 
-/* Destroy old rectangular styles completely */
-.week-day { all: unset !important; }
-.week-day-letter, .week-day-num, .week-day-dot { display: none !important; }
+/* Destroy old rectangular styles */
+.week-day { all: unset; }
 
 .week-strip {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 0;
-  padding: 4px 12px 6px;
+  gap: 2px;
+  padding: 8px 16px 2px;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
-  background: transparent;
-  border: none;
 }
 .week-strip::-webkit-scrollbar { display: none; }
 
@@ -3595,17 +3586,13 @@ p, .greeting p, .ob-slide-sub, .mbar-name, .kn-name, .stat4-lbl {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   flex: 1;
-  min-width: 38px;
-  max-width: 50px;
+  min-width: 40px;
+  max-width: 52px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   position: relative;
-  background: transparent !important;
-  border: none !important;
-  padding: 0;
-  outline: none;
 }
 .wday:active { transform: scale(.90); transition: transform .12s; }
 
@@ -3658,28 +3645,19 @@ html.dark  .wday-track { stroke: rgba(255,255,255,.1); }
   color: var(--cal);
   font-weight: 800;
 }
-/* Today selected — no background box, just bold colored num */
+/* Today selected: solid orange pill */
 .wday.today.selected .wday-num {
-  color: var(--cal);
-  font-weight: 900;
-  font-size: .82rem;
+  color: #fff;
+  background: var(--cal);
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  font-size: .8rem;
 }
 
-/* Selected (non-today): black in light, white in dark */
+/* Selected (non-today) */
 .wday.selected:not(.today) .wday-num {
   font-weight: 800;
   color: var(--text);
-}
-
-/* Today ring-wrap: subtle underline dot instead of background box */
-.wday.today .wday-ring-wrap::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 50%; transform: translateX(-50%);
-  width: 4px; height: 4px;
-  border-radius: 50%;
-  background: var(--cal);
 }
 
 /* Day letter below ring */
@@ -3757,51 +3735,41 @@ html.light .calring-card {
   padding: 10px 16px 2px;
 }
 
-/* ═══ DARK MODE — More page & all text ══════════════════════
-   Belt-and-suspenders: force var(--text) on common text nodes
-   ═══════════════════════════════════════════════════════════ */
-html.dark .mi-name,
-html.dark .more-name,
-html.dark .stat4-lbl,
-html.dark .stat4-val,
-html.dark .mbar-name,
-html.dark .kn-name,
-html.dark .greeting h2,
-html.dark .greeting p,
-html.dark .week-chart-title,
-html.dark .meal-section-name,
-html.dark .meal-section-cals,
-html.dark .steps-title,
-html.dark .steps-stat-label,
-html.dark .steps-stat-val,
-html.dark .steps-count,
-html.dark .steps-lbl,
-html.dark .sb-btn,
-html.dark .sb-section-label { color: var(--text); }
+/* ══ AI COACH — full light/dark adaptation ══════════════════ */
+html.light .ai-topbar    { background: var(--card); }
+html.light .ai-msgs      { background: var(--bg); }
+html.light .ai-input-row { background: rgba(250,250,252,0.97); }
+html.light .ai-txt       { background: var(--card); border-color: var(--border2); color: var(--text); }
+html.light .ai-limit-bar { background: var(--card); border-top: 1px solid var(--border); }
+html.light .ai-context   { background: var(--card2); color: var(--text); border-color: var(--border); }
+html.light .qchip        { background: var(--card); border: 1px solid var(--border2); color: var(--text); }
 
-html.dark .mi-sub,
-html.dark .more-email,
-html.dark .mi-arrow { color: var(--muted2); }
+html.dark  .ai-topbar    { background: var(--card); }
+html.dark  .ai-msgs      { background: var(--bg); }
+html.dark  .ai-input-row { background: var(--nav-bg); }
+html.dark  .ai-txt       { background: var(--card2); border-color: var(--border2); color: var(--text); }
+html.dark  .ai-limit-bar { background: var(--card); border-top: 1px solid var(--border); }
+html.dark  .qchip        { background: var(--card2); border: 1px solid var(--border); color: var(--muted2); }
 
-html.dark .more-item:active { background: rgba(255,255,255,.05); }
+/* ai-info text colours */
+.ai-info h3 { color: var(--text); font-size: .85rem; letter-spacing: 1.5px; }
+.ai-info p  { color: var(--green); font-size: .72rem; font-weight: 700; }
+html.dark .ai-info p { color: var(--green); }
 
-/* Sidebar in dark — force text visible */
-html.dark #sidebarPanel *:not(button):not(i):not(.sb-section-label) {
-  /* Inherited from --text via body — no override needed */
+/* ══ SIDEBAR — full light/dark adaptation ═══════════════════ */
+html.light #sidebarPanel { background: #FFFFFF; }
+html.dark  #sidebarPanel { background: #13131B; }
+
+html.light .sb-btn { color: var(--text); }
+html.light .sb-btn:hover, html.light .sb-btn:active { background: rgba(0,0,0,.04) !important; }
+
+html.light .sb-section-label { color: var(--muted); }
+
+/* ══ AI topbar label ═════════════════════════════════════════ */
+#aiModelLabel {
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: .5px;
+  text-transform: uppercase;
 }
-html.dark .sb-btn { 
-  color: var(--text) !important;
-  background: transparent;
-}
-html.dark .sb-btn:hover,
-html.dark .sb-btn:active { background: rgba(255,255,255,.06) !important; }
-
-/* ─ wday today highlight: respect dark/light ─ */
-html.light .wday.today .wday-num { color: var(--cal); }
-html.dark  .wday.today .wday-num { color: var(--cal); }
-
-html.light .wday.selected .wday-num { color: #1C1C1E; font-weight: 800; }
-html.dark  .wday.selected .wday-num { color: #F2F2F8; font-weight: 800; }
-
-html.light .wday.today.selected .wday-num { color: var(--cal); }
-html.dark  .wday.today.selected .wday-num { color: var(--cal); }
