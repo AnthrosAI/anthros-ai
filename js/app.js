@@ -44,10 +44,12 @@ window._weeklySteps = [0,0,0,0,0,0,0];
 window._healthConnected = false;
 window._lastWaterTime = null;
 window._wkFilter  = '';
-window.microTotals = {zinc:0, iron:0, mag:0, calc:0, vitd:0, fiber:0};
+window.microTotals = {zinc:0, iron:0, mag:0, calc:0, vitd:0, fiber:0, sodium:0, sugar:0, satFat:0};
 window.obStep = 0;
 window.currentDayOffset = 0;
 window._dayOffset = 0;
+window._dailyData = {};  // { 'YYYY-MM-DD': { foodLog, totalCals, totalPro, totalCarb, totalFat, waterGlasses, stepsToday, microTotals } }
+window._selectedDateKey = null;  // null = today
 window._selectedSleepQuality = 3;
 window.openEditField = null;
 window.fastRunning = false;
@@ -107,11 +109,14 @@ function showPage(id, btn) {
 window.showPage = showPage;
 
 function renderDashboard() {
+  renderWeekStrip();
+  updateGreeting();
   renderWater();
   updateMacroDisplay();
   renderMealBlocks();
   renderStepsWidget();
   renderMoodTracker();
+  renderKeyNutrients();
 }
 
 // ── TOAST ──────────────────────────────────────────────────
@@ -145,6 +150,8 @@ function changeDay(delta) {
   updateDateNav();
   updateMacroDisplay();
   renderMealBlocks();
+  renderWeekStrip();
+  renderKeyNutrients();
 }
 
 // ── MACRO DISPLAY ──────────────────────────────────────────
@@ -976,8 +983,19 @@ function checkPaymentReturn() {
 function saveAppState() {
   try {
     const dateKey = new Date().toISOString().split('T')[0];
+    // Snapshot today's data into _dailyData
+    const todayKey = new Date().toISOString().split('T')[0];
+    window._dailyData = window._dailyData || {};
+    window._dailyData[todayKey] = {
+      foodLog: JSON.parse(JSON.stringify(foodLog)),
+      totalCals: window.totalCals, totalPro: window.totalPro,
+      totalCarb: window.totalCarb, totalFat: window.totalFat,
+      waterGlasses: window.waterGlasses,
+      stepsToday: window._stepsToday,
+      microTotals: Object.assign({}, window.microTotals)
+    };
     const state = {
-      dateKey, foodLog, totalCals, totalPro, totalCarb, totalFat,
+      dateKey, foodLog, totalCals, totalPro, totalCarb, totalFat, _dailyData: window._dailyData,
       waterGlasses, U, isPro, aiMsgCount,
       _favorites, _notes, _photoLogs, _sleepLog, _weightLog, _moodLog, _todayMood,
       _stepsToday, _stepsGoal, _weeklySteps, _chatSessions, _currentChatId,
@@ -1012,6 +1030,7 @@ function loadAppState() {
     }
     // Always restore profile + logs
     if (st.U) Object.assign(U, st.U);
+    window._dailyData = st._dailyData || {};
     Object.assign(window, {
       isPro: st.isPro||false, aiMsgCount: st.aiMsgCount||0,
       _favorites: st._favorites||[], _notes: st._notes||[],
@@ -1085,6 +1104,258 @@ function checkGoalWeight() {}
 // GLOBAL SCOPE — Direct window assignments for HTML onclick
 // Runs after all modules parse. Safe to call before DOM ready.
 // ═══════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════
+// WEEK STRIP CALENDAR
+// ═══════════════════════════════════════════════════════════
+
+function _getDateKey(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function _addDays(date, n) {
+  var d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function renderWeekStrip() {
+  var strip  = document.getElementById('weekStrip');
+  var mLabel = document.getElementById('weekStripMonthLabel');
+  var todBtn = document.getElementById('weekStripTodayBtn');
+  if (!strip) return;
+
+  var today    = new Date();
+  today.setHours(0,0,0,0);
+  var todayKey = _getDateKey(today);
+
+  // Selected key: null means today
+  var selKey = window._selectedDateKey || todayKey;
+
+  // Build 7-day window: 3 days back, today, 3 days forward
+  var days = [];
+  for (var i = -3; i <= 3; i++) {
+    days.push(_addDays(today, i));
+  }
+
+  // Month label — show month of selected day
+  var selDate = new Date(selKey + 'T00:00:00');
+  var months  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  if (mLabel) mLabel.textContent = months[selDate.getMonth()] + ' ' + selDate.getFullYear();
+
+  // Today btn visibility
+  if (todBtn) todBtn.classList.toggle('visible', selKey !== todayKey);
+
+  // Build strip HTML
+  var dayNames = ['S','M','T','W','T','F','S'];
+  strip.innerHTML = days.map(function(d) {
+    var key = _getDateKey(d);
+    var isToday    = key === todayKey;
+    var isSelected = key === selKey;
+    var isFuture   = d > today;
+    var hasData    = !isFuture && window._dailyData && window._dailyData[key] &&
+                     (window._dailyData[key].totalCals > 0 ||
+                      window._dailyData[key].waterGlasses > 0);
+
+    var classes = ['week-day'];
+    if (isToday)    classes.push('today');
+    if (isSelected) classes.push('selected');
+    if (isFuture)   classes.push('future');
+    if (hasData)    classes.push('has-data');
+
+    var ariaLbl = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+    return '<button class="' + classes.join(' ') + '" ' +
+           'data-datekey="' + key + '" ' +
+           'role="tab" aria-selected="' + isSelected + '" ' +
+           'aria-label="' + ariaLbl + '">' +
+           '<span class="week-day-letter">' + dayNames[d.getDay()] + '</span>' +
+           '<span class="week-day-num">' + d.getDate() + '</span>' +
+           '<span class="week-day-dot"></span>' +
+           '</button>';
+  }).join('');
+
+  // Wire up clicks via event delegation (no inline onclick needed)
+  strip.onclick = function(e) {
+    var btn = e.target.closest('.week-day');
+    if (btn && btn.dataset.datekey) selectCalendarDay(btn.dataset.datekey);
+  };
+
+  // Scroll selected day into view
+  requestAnimationFrame(function() {
+    var sel = strip.querySelector('.week-day.selected');
+    if (sel) sel.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  });
+}
+window.renderWeekStrip = renderWeekStrip;
+
+function selectCalendarDay(dateKey) {
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var todayKey = _getDateKey(today);
+
+  // Don't select future
+  var selDate = new Date(dateKey + 'T00:00:00');
+  if (selDate > today) return;
+
+  window._selectedDateKey = dateKey;
+
+  // Calculate offset from today
+  var offset = Math.round((selDate - today) / 86400000);
+  window._dayOffset = offset;
+  _dayOffset = offset;
+
+  // Load that day's data into active window vars
+  _loadDayData(dateKey);
+
+  // Re-render everything
+  renderWeekStrip();
+  updateGreeting();
+  updateMacroDisplay();
+  renderMealBlocks();
+  renderWater();
+  renderStepsWidget();
+  renderKeyNutrients();
+
+  // Show "viewing past day" banner
+  if (dateKey !== todayKey) {
+    var d = new Date(dateKey + 'T00:00:00');
+    var label = d.toLocaleDateString(navigator.language || 'en-US', { weekday:'short', month:'short', day:'numeric' });
+    showToast('📅 Viewing ' + label, 'ok');
+  }
+}
+window.selectCalendarDay = selectCalendarDay;
+
+function jumpToToday() {
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  selectCalendarDay(_getDateKey(today));
+}
+window.jumpToToday = jumpToToday;
+
+// Load a specific day's data into window vars (or reset to 0 if no data)
+function _loadDayData(dateKey) {
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var todayKey = _getDateKey(today);
+
+  if (dateKey === todayKey) {
+    // Restore from live state (already current)
+    return;
+  }
+
+  var data = (window._dailyData && window._dailyData[dateKey]) || null;
+  if (data) {
+    window.totalCals  = data.totalCals  || 0;
+    window.totalPro   = data.totalPro   || 0;
+    window.totalCarb  = data.totalCarb  || 0;
+    window.totalFat   = data.totalFat   || 0;
+    window.waterGlasses = data.waterGlasses || 0;
+    window._stepsToday  = data.stepsToday  || 0;
+    window.foodLog      = data.foodLog     || {Breakfast:[],Lunch:[],Dinner:[],Snack:[]};
+    window.microTotals  = Object.assign({zinc:0,iron:0,mag:0,calc:0,vitd:0,fiber:0,sodium:0,sugar:0,satFat:0}, data.microTotals);
+  } else {
+    // No data for this day — show zeros
+    window.totalCals = 0; window.totalPro = 0;
+    window.totalCarb = 0; window.totalFat = 0;
+    window.waterGlasses = 0; window._stepsToday = 0;
+    window.foodLog = {Breakfast:[],Lunch:[],Dinner:[],Snack:[]};
+    window.microTotals = {zinc:0,iron:0,mag:0,calc:0,vitd:0,fiber:0,sodium:0,sugar:0,satFat:0};
+  }
+}
+
+function updateGreeting() {
+  var h2  = document.getElementById('greetH2');
+  var sub = document.getElementById('greetSub');
+  if (!h2 || !sub) return;
+
+  var today = new Date(); today.setHours(0,0,0,0);
+  var todayKey = _getDateKey(today);
+  var selKey   = window._selectedDateKey || todayKey;
+
+  if (selKey !== todayKey) {
+    // Past day mode
+    var d = new Date(selKey + 'T00:00:00');
+    h2.textContent  = d.toLocaleDateString(navigator.language || 'en-US', { weekday:'long', month:'long', day:'numeric' });
+    sub.textContent = '📋 Historical snapshot — read only';
+    return;
+  }
+
+  var hr = new Date().getHours();
+  var name = (window.U && window.U.name) ? window.U.name : '';
+  var greeting = hr < 12 ? 'Good morning' : hr < 18 ? "Let's work," : 'Evening grind,';
+  h2.textContent  = name ? greeting + ' ' + name + ' 💪' : greeting + ' 👊';
+  sub.textContent = window.U && window.U.calories
+    ? window.U.calories + ' kcal · ' + (window.U.protein || '—') + 'g protein today'
+    : 'Loading your plan...';
+}
+window.updateGreeting = updateGreeting;
+
+// ═══════════════════════════════════════════════════════════
+// KEY NUTRIENTS PANEL (Cronometer × AnthrosAI)
+// ═══════════════════════════════════════════════════════════
+
+// Daily value references
+var _KN_DV = {
+  fiber:   { dv: 25,   unit: 'g',   label: 'Fiber',    icon: '🌾', color: 'linear-gradient(90deg,#22C55E,#16A34A)', id: 'fiber' },
+  iron:    { dv: 18,   unit: 'mg',  label: 'Iron',     icon: '🩸', color: 'linear-gradient(90deg,#EF4444,#DC2626)', id: 'iron'  },
+  sodium:  { dv: 2300, unit: 'mg',  label: 'Sodium',   icon: '🧂', color: 'linear-gradient(90deg,#F59E0B,#D97706)', id: 'sodium'},
+  sugar:   { dv: 50,   unit: 'g',   label: 'Sugar',    icon: '🍬', color: 'linear-gradient(90deg,#EC4899,#DB2777)', id: 'sugar' },
+  satFat:  { dv: 20,   unit: 'g',   label: 'Sat. Fat', icon: '🥩', color: 'linear-gradient(90deg,#8B5CF6,#7C3AED)', id: 'satfat'}
+};
+
+function renderKeyNutrients() {
+  var mt = window.microTotals || {};
+  var met = 0, total = 5;
+
+  Object.entries(_KN_DV).forEach(function(entry) {
+    var key = entry[0];
+    var cfg = entry[1];
+    var val = mt[key] || 0;
+    var pct = Math.min(100, Math.round((val / cfg.dv) * 100));
+
+    var fillEl = document.getElementById('kn-' + cfg.id + '-fill');
+    var valEl  = document.getElementById('kn-' + cfg.id + '-val');
+
+    if (fillEl) {
+      fillEl.style.width = pct + '%';
+      fillEl.style.background = cfg.color;
+    }
+    if (valEl) {
+      var display = val < 1000 ? Math.round(val * 10) / 10 : Math.round(val);
+      valEl.textContent = display + '/' + cfg.dv + cfg.unit;
+      valEl.className = 'kn-val' + (pct >= 100 ? (key === 'sodium' || key === 'sugar' || key === 'satFat' ? ' over' : ' met') : '');
+    }
+    if (pct >= 80) met++;
+  });
+
+  // Summary badge
+  var summary = document.getElementById('knSummary');
+  if (summary) {
+    summary.textContent = met + '/' + total + ' targets';
+    summary.style.color = met >= 3 ? 'var(--green)' : 'var(--muted2)';
+    summary.style.background = met >= 3 ? 'rgba(34,197,94,.1)' : 'var(--card2)';
+    summary.style.borderColor = met >= 3 ? 'rgba(34,197,94,.2)' : 'var(--border)';
+  }
+}
+window.renderKeyNutrients = renderKeyNutrients;
+
+// Helper: add a food's micro data (call this from logFood / nutrition.js)
+function addMicroNutrients(entry) {
+  if (!entry) return;
+  var mt = window.microTotals;
+  mt.fiber  = (mt.fiber  || 0) + (parseFloat(entry.fiber)  || 0);
+  mt.iron   = (mt.iron   || 0) + (parseFloat(entry.iron)   || 0);
+  mt.sodium = (mt.sodium || 0) + (parseFloat(entry.sodium) || 0);
+  mt.sugar  = (mt.sugar  || 0) + (parseFloat(entry.sugar)  || 0);
+  mt.satFat = (mt.satFat || 0) + (parseFloat(entry.saturatedFat || entry.satFat) || 0);
+  // Legacy micros
+  mt.zinc  = (mt.zinc  || 0) + (parseFloat(entry.zinc)  || 0);
+  mt.mag   = (mt.mag   || 0) + (parseFloat(entry.mag)   || 0);
+  mt.calc  = (mt.calc  || 0) + (parseFloat(entry.calc)  || 0);
+  mt.vitd  = (mt.vitd  || 0) + (parseFloat(entry.vitd)  || 0);
+}
+window.addMicroNutrients = addMicroNutrients;
+
 function _bindAllToWindow() {
   const fns = ['activatePro',
     'addAiMsg',
@@ -1446,11 +1717,14 @@ function _anthrosBoot() {
 
       // Hydrate UI
       setTimeout(() => {
+        renderWeekStrip();
+        updateGreeting();
         updateMacroDisplay();
         renderMealBlocks();
         renderWater();
         renderMoodTracker();
         renderStepsWidget();
+        renderKeyNutrients();
         renderNotesList();
         if (window.fastRunning && window.fastStart) {
           clearInterval(window.fastInterval);
@@ -1541,6 +1815,12 @@ window.calcCaloriesBurned = calcCaloriesBurned;
   window.showToast         = showToast;
   window.calcNetCalories   = calcNetCalories;
   window.calcCaloriesBurned= calcCaloriesBurned;
+  window.renderWeekStrip     = renderWeekStrip;
+  window.renderKeyNutrients  = renderKeyNutrients;
+  window.selectCalendarDay   = selectCalendarDay;
+  window.jumpToToday         = jumpToToday;
+  window.updateGreeting      = updateGreeting;
+  window.addMicroNutrients   = addMicroNutrients;
   window.openSidebar       = function(){ if(typeof openSidebar !== "undefined") openSidebar(); };
   window.closeSidebar      = function(){ if(typeof closeSidebar !== "undefined") closeSidebar(); };
   window.openRecipes       = function(c){ if(typeof openRecipes !== "undefined") openRecipes(c); };
