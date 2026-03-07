@@ -657,6 +657,11 @@ var AUTH = (function () {
     showErr('stepError', '');
 
     var err = validators[state.step] ? validators[state.step]() : null;
+
+    // 'pending' = async op in-flight (e.g. Supabase signup).
+    // The async op will call goTo() itself when done — don't block.
+    if (err === 'pending') return;
+
     if (err) {
       // showErr('stepError', err); — field-level errors already shown
       return;
