@@ -460,12 +460,20 @@
   <div class="app-content">
     <!-- DASHBOARD -->
     <div class="page active" id="pg-dash">
+      <!-- ══ WEEK STRIP CALENDAR ══════════════════════════════ -->
+      <div class="week-strip-header">
+        <div class="week-strip-label">📅 <span id="weekStripMonthLabel">March</span></div>
+        <button class="week-strip-today-btn" id="weekStripTodayBtn" onclick="jumpToToday()">Back to Today</button>
+      </div>
+      <div class="week-strip" id="weekStrip" role="tablist" aria-label="Week calendar"></div>
+
+      <!-- ══ GREETING ══════════════════════════════════════════ -->
       <div class="greeting">
         <h2 id="greetH2">Let's get after it 👊</h2>
         <p id="greetSub">Loading your plan...</p>
       </div>
 
-      <!-- CALORIE RING -->
+      <!-- ══ CALORIE RING ══════════════════════════════════════ -->
       <div class="calring-card">
         <div class="ring-container">
           <svg class="ring-svg" viewBox="0 0 120 120">
@@ -509,6 +517,46 @@
         </div>
       </div>
 
+      <!-- ══ KEY NUTRIENTS (Cronometer style) ═════════════════ -->
+      <div class="key-nutrients-card" id="keyNutrientsCard">
+        <div class="kn-header">
+          <div class="kn-title">
+            <div class="kn-title-icon">🌿</div>
+            Key Nutrients
+          </div>
+          <div class="kn-pct-summary" id="knSummary">—</div>
+        </div>
+        <div class="kn-list" id="knList">
+          <!-- rendered by renderKeyNutrients() -->
+          <div class="kn-row">
+            <div class="kn-name"><span class="kn-name-icon">🌾</span>Fiber</div>
+            <div class="kn-bar-track"><div class="kn-bar-fill" id="kn-fiber-fill" style="width:0%;background:linear-gradient(90deg,#22C55E,#16A34A)"></div></div>
+            <div class="kn-val" id="kn-fiber-val">0/25g</div>
+          </div>
+          <div class="kn-row">
+            <div class="kn-name"><span class="kn-name-icon">🩸</span>Iron</div>
+            <div class="kn-bar-track"><div class="kn-bar-fill" id="kn-iron-fill" style="width:0%;background:linear-gradient(90deg,#EF4444,#DC2626)"></div></div>
+            <div class="kn-val" id="kn-iron-val">0/18mg</div>
+          </div>
+          <div class="kn-row">
+            <div class="kn-name"><span class="kn-name-icon">🧂</span>Sodium</div>
+            <div class="kn-bar-track"><div class="kn-bar-fill" id="kn-sodium-fill" style="width:0%;background:linear-gradient(90deg,#F59E0B,#D97706)"></div></div>
+            <div class="kn-val" id="kn-sodium-val">0/2300mg</div>
+          </div>
+          <div class="kn-row">
+            <div class="kn-name"><span class="kn-name-icon">🍬</span>Sugar</div>
+            <div class="kn-bar-track"><div class="kn-bar-fill" id="kn-sugar-fill" style="width:0%;background:linear-gradient(90deg,#EC4899,#DB2777)"></div></div>
+            <div class="kn-val" id="kn-sugar-val">0/50g</div>
+          </div>
+          <div class="kn-row">
+            <div class="kn-name"><span class="kn-name-icon">🥩</span>Sat. Fat</div>
+            <div class="kn-bar-track"><div class="kn-bar-fill" id="kn-satfat-fill" style="width:0%;background:linear-gradient(90deg,#8B5CF6,#7C3AED)"></div></div>
+            <div class="kn-val" id="kn-satfat-val">0/20g</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ 4 STATS ════════════════════════════════════════ -->
       <!-- 4 STATS -->
       <div class="stats4">
         <div class="stat4" style="--ac:var(--cal)" onclick="">
@@ -595,7 +643,7 @@
 
       
       <!-- NET CALORIES DISPLAY -->
-      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <div id="netCalRow" style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px 16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px">
         <div style="text-align:center;flex:1">
           <div style="font-size:.6rem;color:var(--muted2);letter-spacing:.5px;margin-bottom:3px">CONSUMED</div>
           <div id="netConsumed" style="font-family:var(--ff-display,Syne);font-size:1.15rem;font-weight:800;color:var(--cal)">0</div>
