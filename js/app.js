@@ -655,16 +655,123 @@ function closeDevicesModal() {
   if (m) m.classList.remove('open');
 }
 function connectDevice(name) {
-  showToast(`${name} — coming soon in native app`,'ok');
+  if (name === 'Apple Health') { connectAppleHealth(); return; }
+  showToast(name + ' — sync coming in native app', 'ok');
   closeDevicesModal();
 }
-function startMotionStepCount() {
-  if (typeof DeviceMotionEvent !== 'undefined' && DeviceMotionEvent.requestPermission) {
-    DeviceMotionEvent.requestPermission().then(p => {
-      if (p === 'granted') showToast('Motion tracking enabled','ok');
-    }).catch(() => showToast('Motion permission denied','err'));
+
+// ── Apple Health / DeviceMotion Bridge ─────────────────────
+function connectAppleHealth() {
+  var AH_KEY = 'anthros_ah_connected';
+
+  function _setConnected() {
+    localStorage.setItem(AH_KEY, '1');
+    _updateAHUI(true);
+    showToast('🍎 Apple Health connected!', 'ok');
+    _startMotionPedometer();
+  }
+
+  function _updateAHUI(connected) {
+    var row    = document.getElementById('ahDeviceRow');
+    var sub    = document.getElementById('ahDeviceSub');
+    var status = document.getElementById('ahDeviceStatus');
+    if (!row) return;
+    if (connected) {
+      if (sub)    sub.textContent = 'Connected · syncing steps';
+      if (status) status.innerHTML = '<span class="ah-connected-badge">🟢 Connected</span>';
+      row.onclick = null;
+      row.style.opacity = '0.7';
+    } else {
+      if (sub)    sub.textContent = 'Steps, heart rate, motion';
+      if (status) status.innerHTML = '›';
+    }
+  }
+
+  // Already connected?
+  if (localStorage.getItem(AH_KEY) === '1') {
+    showToast('🍎 Already connected to Apple Health', 'ok');
+    _startMotionPedometer();
+    closeDevicesModal();
+    return;
+  }
+
+  // iOS 13+ requires permission prompt triggered by user gesture
+  if (typeof DeviceMotionEvent !== 'undefined' &&
+      typeof DeviceMotionEvent.requestPermission === 'function') {
+    // iOS 13+ path — must be triggered by user gesture (we're in onclick ✓)
+    DeviceMotionEvent.requestPermission()
+      .then(function(permissionState) {
+        if (permissionState === 'granted') {
+          _setConnected();
+        } else {
+          showToast('Motion access denied — enable in Settings → Privacy', 'err');
+        }
+      })
+      .catch(function(err) {
+        console.warn('DeviceMotionEvent error:', err);
+        // Fallback: treat as granted (older Safari)
+        _setConnected();
+      });
+  } else if (typeof DeviceMotionEvent !== 'undefined') {
+    // Android / older iOS — permission not required, just start
+    _setConnected();
+  } else {
+    // Non-mobile / desktop preview
+    showToast('🍎 Apple Health: install the PWA on iPhone to connect', 'ok');
+    closeDevicesModal();
   }
 }
+window.connectAppleHealth = connectAppleHealth;
+
+// Step counter using devicemotion acceleration magnitude
+function _startMotionPedometer() {
+  var _lastMag = 0;
+  var _stepThresh = 11.5;  // m/s² threshold
+  var _cooldown  = false;
+  var _sessionSteps = 0;
+
+  function _onMotion(e) {
+    var a = e.accelerationIncludingGravity;
+    if (!a) return;
+    var mag = Math.sqrt(a.x*a.x + a.y*a.y + a.z*a.z);
+    var delta = Math.abs(mag - _lastMag);
+    _lastMag = mag;
+
+    if (delta > _stepThresh && !_cooldown) {
+      _cooldown = true;
+      _sessionSteps++;
+      // Add to today's step count
+      window._stepsToday = (window._stepsToday || 0) + 1;
+      // Throttle UI updates
+      if (_sessionSteps % 10 === 0) {
+        renderStepsWidget && renderStepsWidget();
+        saveAppState && saveAppState();
+      }
+      setTimeout(function() { _cooldown = false; }, 350);
+    }
+  }
+
+  // Remove old listener if any
+  window.removeEventListener('devicemotion', _onMotion);
+  window.addEventListener('devicemotion', _onMotion, { passive: true });
+  window._motionPedometerActive = true;
+}
+
+// Auto-restore AH connection on boot
+function _restoreAppleHealthConnection() {
+  if (localStorage.getItem('anthros_ah_connected') === '1') {
+    var sub    = document.getElementById('ahDeviceSub');
+    var status = document.getElementById('ahDeviceStatus');
+    if (sub)    sub.textContent = 'Connected · syncing steps';
+    if (status) status.innerHTML = '<span class="ah-connected-badge">🟢 Connected</span>';
+    var row = document.getElementById('ahDeviceRow');
+    if (row) { row.onclick = null; row.style.opacity = '0.7'; }
+    _startMotionPedometer();
+  }
+}
+window._restoreAppleHealthConnection = _restoreAppleHealthConnection;
+
+function startMotionStepCount() { _startMotionPedometer(); }
 
 // ── PROGRESS ───────────────────────────────────────────────
 function renderProgress() {
@@ -1119,6 +1226,15 @@ function _addDays(date, n) {
   return d;
 }
 
+// ─── Ring color by calorie % consumed ─────────────────────
+function _ringColor(pct) {
+  if (pct <= 0) return 'rgba(150,150,165,0.25)';
+  if (pct < 30)  return '#EF4444';  // red
+  if (pct < 70)  return '#F97316';  // orange
+  if (pct <= 100) return '#22C55E'; // green
+  return '#EF4444';                 // over budget → red again
+}
+
 function renderWeekStrip() {
   var strip  = document.getElementById('weekStrip');
   var mLabel = document.getElementById('weekStripMonthLabel');
@@ -1128,62 +1244,77 @@ function renderWeekStrip() {
   var today    = new Date();
   today.setHours(0,0,0,0);
   var todayKey = _getDateKey(today);
+  var selKey   = window._selectedDateKey || todayKey;
 
-  // Selected key: null means today
-  var selKey = window._selectedDateKey || todayKey;
-
-  // Build 7-day window: 3 days back, today, 3 days forward
+  // 7-day window: 3 back, today, 3 forward
   var days = [];
-  for (var i = -3; i <= 3; i++) {
-    days.push(_addDays(today, i));
-  }
+  for (var i = -3; i <= 3; i++) days.push(_addDays(today, i));
 
-  // Month label — show month of selected day
+  // Month label
   var selDate = new Date(selKey + 'T00:00:00');
   var months  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   if (mLabel) mLabel.textContent = months[selDate.getMonth()] + ' ' + selDate.getFullYear();
-
-  // Today btn visibility
   if (todBtn) todBtn.classList.toggle('visible', selKey !== todayKey);
 
-  // Build strip HTML
   var dayNames = ['S','M','T','W','T','F','S'];
+  var R = 14;  // SVG circle radius
+  var C = 2 * Math.PI * R;  // circumference ≈ 87.96
+
   strip.innerHTML = days.map(function(d) {
-    var key = _getDateKey(d);
+    var key        = _getDateKey(d);
     var isToday    = key === todayKey;
     var isSelected = key === selKey;
     var isFuture   = d > today;
-    var hasData    = !isFuture && window._dailyData && window._dailyData[key] &&
-                     (window._dailyData[key].totalCals > 0 ||
-                      window._dailyData[key].waterGlasses > 0);
 
-    var classes = ['week-day'];
+    // Calculate calorie % for this day
+    var dayCals = 0;
+    var calGoal = (window.U && window.U.calories) ? window.U.calories : 2000;
+    if (key === todayKey) {
+      dayCals = window.totalCals || 0;
+    } else if (window._dailyData && window._dailyData[key]) {
+      dayCals = window._dailyData[key].totalCals || 0;
+    }
+    var pct    = isFuture ? 0 : Math.min(110, Math.round((dayCals / calGoal) * 100));
+    var offset = C - (C * Math.min(pct, 100) / 100);
+    var color  = isFuture ? 'rgba(150,150,165,0.2)' : _ringColor(pct);
+    var trackColor = isToday ? 'currentColor' : '';
+
+    var classes = ['wday'];
     if (isToday)    classes.push('today');
     if (isSelected) classes.push('selected');
     if (isFuture)   classes.push('future');
-    if (hasData)    classes.push('has-data');
 
-    var ariaLbl = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
-    return '<button class="' + classes.join(' ') + '" ' +
-           'data-datekey="' + key + '" ' +
-           'role="tab" aria-selected="' + isSelected + '" ' +
-           'aria-label="' + ariaLbl + '">' +
-           '<span class="week-day-letter">' + dayNames[d.getDay()] + '</span>' +
-           '<span class="week-day-num">' + d.getDate() + '</span>' +
-           '<span class="week-day-dot"></span>' +
-           '</button>';
+    // Thicker ring for today
+    var strokeW = isToday ? '3.5' : '2.5';
+
+    return '<button class="' + classes.join(' ') + '" data-datekey="' + key + '">' +
+      '<div class="wday-ring-wrap">' +
+        '<svg class="wday-ring-svg" viewBox="0 0 36 36">' +
+          '<circle class="wday-track" cx="18" cy="18" r="' + R + '"/>' +
+          (pct > 0 ?
+            '<circle class="wday-fill" cx="18" cy="18" r="' + R + '" ' +
+              'stroke="' + color + '" ' +
+              'stroke-width="' + strokeW + '" ' +
+              'stroke-dasharray="' + C.toFixed(2) + '" ' +
+              'stroke-dashoffset="' + offset.toFixed(2) + '"/>' : ''
+          ) +
+        '</svg>' +
+        '<span class="wday-num">' + d.getDate() + '</span>' +
+      '</div>' +
+      '<span class="wday-letter">' + dayNames[d.getDay()] + '</span>' +
+    '</button>';
   }).join('');
 
-  // Wire up clicks via event delegation (no inline onclick needed)
+  // Event delegation
   strip.onclick = function(e) {
-    var btn = e.target.closest('.week-day');
+    var btn = e.target.closest('.wday');
     if (btn && btn.dataset.datekey) selectCalendarDay(btn.dataset.datekey);
   };
 
-  // Scroll selected day into view
+  // Scroll selected into view
   requestAnimationFrame(function() {
-    var sel = strip.querySelector('.week-day.selected');
-    if (sel) sel.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    var sel = strip.querySelector('.wday.selected');
+    if (sel) sel.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' });
   });
 }
 window.renderWeekStrip = renderWeekStrip;
@@ -1725,6 +1856,10 @@ function _anthrosBoot() {
         renderMoodTracker();
         renderStepsWidget();
         renderKeyNutrients();
+        // Restore Apple Health connection if previously granted
+        if (typeof _restoreAppleHealthConnection === 'function') {
+          setTimeout(_restoreAppleHealthConnection, 800);
+        }
         renderNotesList();
         if (window.fastRunning && window.fastStart) {
           clearInterval(window.fastInterval);
@@ -1821,6 +1956,9 @@ window.calcCaloriesBurned = calcCaloriesBurned;
   window.jumpToToday         = jumpToToday;
   window.updateGreeting      = updateGreeting;
   window.addMicroNutrients   = addMicroNutrients;
+  window.connectAppleHealth  = connectAppleHealth;
+  window.connectDevice       = connectDevice;
+  window._restoreAppleHealthConnection = _restoreAppleHealthConnection;
   window.openSidebar       = function(){ if(typeof openSidebar !== "undefined") openSidebar(); };
   window.closeSidebar      = function(){ if(typeof closeSidebar !== "undefined") closeSidebar(); };
   window.openRecipes       = function(c){ if(typeof openRecipes !== "undefined") openRecipes(c); };
