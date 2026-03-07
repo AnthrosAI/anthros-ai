@@ -846,6 +846,15 @@ var AUTH = (function () {
      BOOT
      ───────────────────────────────────────────────────────── */
   function init() {
+    // Guard against double-init (would attach duplicate listeners)
+    if (AUTH._initialized) {
+      // Re-run renderer for current step only
+      if (stepRenderers[state.step]) stepRenderers[state.step]();
+      updateTopbar(); updateCtaLabel(); updateCtaState();
+      return;
+    }
+    AUTH._initialized = true;
+
     // Ensure window.U exists
     if (!window.U || !window.U.name) {
       window.U = buildEmptyU();
@@ -978,7 +987,6 @@ function initApp() {
 }
 window.initApp = initApp;
 
-/* Boot hook — called by app.js _anthrosBoot() */
-document.addEventListener('DOMContentLoaded', function () {
-  AUTH.init();
-});
+/* AUTH.init() is called exclusively by app.js _anthrosBoot().
+   Do NOT add a standalone DOMContentLoaded here — it causes double-init
+   which attaches two click listeners to #onboarding and breaks all buttons. */
