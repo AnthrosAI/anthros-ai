@@ -561,7 +561,43 @@ var AUTH = (function () {
       window.U.name  = name;
       window.U.email = email;
       if ($('verifyEmailShow')) $('verifyEmailShow').textContent = email;
-      return null;
+
+      var SUPA_URL = 'https://fmuscweewkgpcvzjnteo.supabase.co';
+      var SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZtdXNjd2Vld2tncGN2empudGVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4ODU2NzAsImV4cCI6MjA4ODQ2MTY3MH0.6UUs98UU4fCaQMcKIyLzBO8k-5gHfrOe3TuJyTS-XzE';
+
+      var btn = $('obCta');
+      if (btn) { btn.disabled = true; btn.textContent = 'Creating account…'; }
+
+      fetch(SUPA_URL + '/auth/v1/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPA_KEY,
+          'Authorization': 'Bearer ' + SUPA_KEY
+        },
+        body: JSON.stringify({
+          email: email,
+          password: pass,
+          data: { full_name: name }
+        })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.error) {
+          showErr('accountError', data.error.message || 'Signup failed.');
+          if (btn) { btn.disabled = false; btn.textContent = 'Create Account →'; }
+          return;
+        }
+        if (data.user) window.U._uid = data.user.id;
+        goTo(8);
+      })
+      .catch(function() {
+        showErr('accountError', 'Network error. Please try again.');
+        if (btn) { btn.disabled = false; btn.textContent = 'Create Account →'; }
+      });
+
+      return 'pending';
+    },
     },
 
     7: function () {
