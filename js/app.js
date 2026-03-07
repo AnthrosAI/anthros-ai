@@ -8,7 +8,7 @@
 // ── CONSTANTS ──────────────────────────────────────────────
 const GROQ_KEY = '';
 const GROQ_URL  = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+const GROQ_MODEL = 'compound-beta';  // web search + code execution built-in
 const AI_FREE_LIMIT = 5;
 
 // ── STATE ──────────────────────────────────────────────────
@@ -279,7 +279,7 @@ function buildSysPrompt() {
 }
 
 function addAiMsg(text) {
-  const chat = document.getElementById('chatMessages');
+  const chat = document.getElementById('aiMsgs');
   if (!chat) return;
   const div = document.createElement('div');
   div.className = 'chat-msg ai';
@@ -290,7 +290,7 @@ function addAiMsg(text) {
 }
 
 function addUsrMsg(text) {
-  const chat = document.getElementById('chatMessages');
+  const chat = document.getElementById('aiMsgs');
   if (!chat) return;
   const div = document.createElement('div');
   div.className = 'chat-msg user';
@@ -300,7 +300,7 @@ function addUsrMsg(text) {
 }
 
 function addTyping() {
-  const chat = document.getElementById('chatMessages');
+  const chat = document.getElementById('aiMsgs');
   if (!chat) return null;
   const div = document.createElement('div');
   div.className = 'chat-msg ai typing-wrap';
@@ -344,9 +344,21 @@ async function sendMsg() {
     if (!res.ok) throw new Error('API ' + res.status + ': ' + await res.text().catch(()=>''));
     const data = await res.json();
     if (typing) typing.remove();
-    const reply = data.choices?.[0]?.message?.content
-               || data.content  // Anthropic format fallback
-               || 'No response from AI. Check your connection.';
+    // compound-beta may include tool_calls — extract text content only
+    const rawMsg = data.choices?.[0]?.message;
+    let reply = '';
+    if (rawMsg) {
+      if (typeof rawMsg.content === 'string') {
+        reply = rawMsg.content;
+      } else if (Array.isArray(rawMsg.content)) {
+        // content blocks array (tool results mixed in)
+        reply = rawMsg.content
+          .filter(b => b.type === 'text')
+          .map(b => b.text)
+          .join('\n') || '';
+      }
+    }
+    if (!reply) reply = data.content || 'No response from AI. Check your connection.';
     msgHistory.push({ role:'assistant', content:reply });
     addAiMsg(reply);
     setTimeout(saveChatSession, 300);
@@ -389,7 +401,7 @@ function newChatSession() {
   if (msgHistory.length > 0) saveChatSession();
   msgHistory.length = 0;
   _currentChatId = null;
-  const chat = document.getElementById('chatMessages');
+  const chat = document.getElementById('aiMsgs');
   if (chat) chat.innerHTML = '';
   addAiMsg(`Hey ${U.name||'there'}! I'm your AnthrosAI Coach. What's on your mind today?`);
   closeChatSidebar();
@@ -415,7 +427,7 @@ function loadChatSession(id) {
   msgHistory.length = 0;
   session.messages.forEach(m => msgHistory.push(m));
   _currentChatId = id;
-  const chat = document.getElementById('chatMessages');
+  const chat = document.getElementById('aiMsgs');
   if (chat) {
     chat.innerHTML = '';
     session.messages.forEach(m => m.role==='user' ? addUsrMsg(m.content) : addAiMsg(m.content));
