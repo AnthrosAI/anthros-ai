@@ -657,8 +657,7 @@ var AUTH = (function () {
     showErr('stepError', '');
 
     var err = validators[state.step] ? validators[state.step]() : null;
-    if (err) {
-      // showErr('stepError', err); — field-level errors already shown
+    if (err && err !== 'pending') {
       return;
     }
 
