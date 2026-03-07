@@ -28,14 +28,15 @@
   --muted2:   #6C6C70;
 
   /* Topbar/nav surfaces */
-  --nav-bg:   rgba(245,245,247,0.96);
+  --nav-bg:   rgba(250,250,252,0.97);
   --nav-border: rgba(0,0,0,0.08);
+  --sidebar-bg: #FFFFFF;
 
   /* Font */
-  --ff-display: 'Syne', sans-serif;
-  --ff-body:    'DM Sans', sans-serif;
-  --ff: 'Syne', sans-serif;
-  --fb: 'DM Sans', sans-serif;
+  --ff-display: -apple-system, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
+  --ff-body:    -apple-system, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
+  --ff: -apple-system, 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif;
+  --fb: -apple-system, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
 }
 
 /* ── DARK MODE TOKENS ────────────────────────────────────── */
@@ -49,8 +50,9 @@ html.dark {
   --text:     #F2F2F8;
   --muted:    #60607A;
   --muted2:   #9090A8;
-  --nav-bg:   rgba(12,12,16,0.96);
+  --nav-bg:   rgba(10,10,14,0.97);
   --nav-border: rgba(255,255,255,0.06);
+  --sidebar-bg: #13131B;
 }
 
 /* ── Loading screen adapts to theme ─────────────────────── */
@@ -2005,7 +2007,12 @@ html.light #loadingScreen .loading-text { color: rgba(0,0,0,.35); }
 
 /* ── iOS DYNAMIC ISLAND / SAFE AREA FIX ──────────────────────── */
 :root { --sat: env(safe-area-inset-top, 0px); }
-body { padding-top: env(safe-area-inset-top, 0px); }
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+  text-align: left;
+  -webkit-text-size-adjust: 100%;
+  font-family: var(--ff-body);
+}
 .app-topnav {
   padding-top: calc(14px + env(safe-area-inset-top, 0px)) !important;
 }
@@ -3503,3 +3510,221 @@ html.light .week-day.today:not(.selected) {
 
 /* Steps ring: fix dark ring track for light mode */
 html.light .steps-ring-svg circle:first-child { stroke: rgba(0,0,0,.07); }
+
+
+
+/* ═══════════════════════════════════════════════════════════
+   PREMIUM iOS v12 — SF Pro · Rings Calendar · Glassmorphism
+   ═══════════════════════════════════════════════════════════ */
+
+/* Explicit light mode nav — override any stickiness */
+html.light .app-topnav {
+  background: rgba(250,250,252,0.97) !important;
+  border-bottom: 1px solid rgba(0,0,0,0.07) !important;
+}
+html.light .bottom-nav {
+  background: rgba(250,250,252,0.97) !important;
+  border-top: 1px solid rgba(0,0,0,0.07) !important;
+}
+html.dark .app-topnav {
+  background: rgba(10,10,14,0.97) !important;
+}
+html.dark .bottom-nav {
+  background: rgba(10,10,14,0.97) !important;
+}
+
+/* ── Titles: tracking-tighter Apple style ─────────────────── */
+h1, h2, .ob-slide-title, .app-logo-text {
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  font-family: var(--ff-display);
+}
+p, .greeting p, .ob-slide-sub, .mbar-name, .kn-name, .stat4-lbl {
+  line-height: 1.55;
+  font-family: var(--ff-body);
+}
+
+/* ── Safe area padding on onboarding slides ─────────────────  */
+#onboarding .ob-progress-row {
+  padding-top: calc(env(safe-area-inset-top, 16px) + 8px);
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.ob-slide {
+  padding: 8px 24px calc(env(safe-area-inset-bottom, 20px) + 20px);
+}
+.ob-cta-bar {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CIRCULAR RING CALENDAR — replaces rectangular week-day
+   ═══════════════════════════════════════════════════════════ */
+
+/* Destroy old rectangular styles */
+.week-day { all: unset; }
+
+.week-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 8px 16px 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.week-strip::-webkit-scrollbar { display: none; }
+
+.wday {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 40px;
+  max-width: 52px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.wday:active { transform: scale(.90); transition: transform .12s; }
+
+/* SVG ring wrapper */
+.wday-ring-wrap {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+.wday-ring-svg {
+  width: 36px;
+  height: 36px;
+  transform: rotate(-90deg);
+  overflow: visible;
+}
+/* Track ring */
+.wday-track {
+  fill: none;
+  stroke-width: 3;
+}
+html.light .wday-track { stroke: rgba(0,0,0,.08); }
+html.dark  .wday-track { stroke: rgba(255,255,255,.1); }
+
+/* Fill ring — color set via JS via stroke attribute */
+.wday-fill {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s cubic-bezier(.4,0,.2,1),
+              stroke .4s ease;
+}
+
+/* Day number inside ring */
+.wday-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ff-display);
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+/* Today: outer glow + bold ring */
+.wday.today .wday-ring-svg .wday-fill { stroke-width: 4; }
+.wday.today .wday-num {
+  color: var(--cal);
+  font-weight: 800;
+}
+/* Today selected: solid orange pill */
+.wday.today.selected .wday-num {
+  color: #fff;
+  background: var(--cal);
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  font-size: .8rem;
+}
+
+/* Selected (non-today) */
+.wday.selected:not(.today) .wday-num {
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* Day letter below ring */
+.wday-letter {
+  font-family: var(--ff-display);
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  color: var(--muted);
+  line-height: 1;
+}
+.wday.today .wday-letter { color: var(--cal); }
+.wday.future { opacity: .35; pointer-events: none; }
+
+/* ═══════════════════════════════════════════════════════════
+   KEY NUTRIENTS — Glassmorphism in light mode
+   ═══════════════════════════════════════════════════════════ */
+html.light .key-nutrients-card {
+  background: rgba(255,255,255,0.72) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,.05) !important;
+}
+html.light .kn-bar-track {
+  background: rgba(0,0,0,.04);
+  border: 1px solid rgba(0,0,0,.05);
+}
+html.dark .key-nutrients-card {
+  background: rgba(24,24,31,0.85) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Also glassmorphism the calring-card in light */
+html.light .calring-card {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0,0,0,.06);
+  box-shadow: 0 2px 16px rgba(0,0,0,.06);
+}
+
+/* ── Apple Health "Connected" badge ─────────────────────── */
+.ah-connected-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .7rem;
+  font-weight: 700;
+  color: #22C55E;
+  background: rgba(34,197,94,.12);
+  border: 1px solid rgba(34,197,94,.25);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+.ah-connect-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #FF8A00, #FF4B4B);
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Week strip header tighter */
+.week-strip-header {
+  padding: 10px 16px 2px;
+}
