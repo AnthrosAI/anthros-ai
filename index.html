@@ -872,7 +872,7 @@
         <div class="ai-orb">🤖<div class="ai-orb-dot"></div></div>
         <div class="ai-info">
           <h3>AI COACH</h3>
-          <p>Online · Llama 3.3 70B</p>
+          <p id="aiModelLabel">ONLINE · COMPOUND-BETA</p>
         </div>
         <div class="ai-context" id="aiCtxChip">Loading...</div>
       </div>
@@ -2011,7 +2011,7 @@ if ('serviceWorker' in navigator) {
   <div id="sidebarPanel" style="position:absolute;top:0;left:0;bottom:0;width:82%;max-width:340px;background:var(--sidebar-bg,var(--card));border-right:1px solid var(--border);display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);overflow-y:auto;-webkit-overflow-scrolling:touch">
 
     <!-- Header -->
-    <div style="padding:calc(env(safe-area-inset-top)+20px) 20px 20px;background:linear-gradient(180deg,#1A1A26 0%,transparent 100%);flex-shrink:0">
+    <div style="padding:calc(env(safe-area-inset-top, 0px) + 20px) 20px 20px;background:linear-gradient(180deg,var(--card) 0%,transparent 100%);flex-shrink:0">
       <div style="display:flex;align-items:center;gap:12px">
         <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--cal),#FF4B4B);display:flex;align-items:center;justify-content:center;font-size:1.3rem">🤖</div>
         <div>
@@ -2022,45 +2022,67 @@ if ('serviceWorker' in navigator) {
     </div>
 
     <!-- Nav Items -->
-    <div style="padding:8px 12px;flex:1">
+    <div style="padding:8px 12px;flex:1;overflow-y:auto">
 
-      <!-- AI Coach -->
-      <div class="sb-section-label">AI COACH</div>
+      <!-- 🤖 AI COACH -->
+      <div class="sb-section-label">🤖 AI COACH</div>
       <button class="sb-btn" onclick="closeSidebar();showPage('ai',document.getElementById('nav-ai'))">
-        <span class="sb-icon">🤖</span><span>AI Coach Chat</span>
+        <span class="sb-icon">💬</span><span>AI Coach Chat</span>
+      </button>
+      <button class="sb-btn" onclick="closeSidebar();openFoodScanner()">
+        <span class="sb-icon">📷</span><span>Scan Food with AI</span>
+      </button>
+      <button class="sb-btn" onclick="closeSidebar();openDailyReport()">
+        <span class="sb-icon">📋</span><span>AI Daily Report</span>
       </button>
 
-      <!-- Supplementation -->
-      <div class="sb-section-label">SUPPLEMENTATION</div>
-      <button class="sb-btn" onclick="closeSidebar();openSupplementDashboard()">
-        <span class="sb-icon">💊</span><span>Daily Supplements</span>
+      <!-- 🔬 BIO-TRACKING -->
+      <div class="sb-section-label">🔬 BIO-TRACKING</div>
+      <button class="sb-btn" onclick="closeSidebar();showPage('progress',document.getElementById('nav-progress'))">
+        <span class="sb-icon">📈</span><span>Body Progress</span>
       </button>
-      <button class="sb-btn" onclick="closeSidebar();showPage('more',document.getElementById('nav-more'))">
-        <span class="sb-icon">📊</span><span>Supplement History</span>
+      <button class="sb-btn" onclick="closeSidebar();showSleepPage()">
+        <span class="sb-icon">😴</span><span>Sleep Tracking</span>
       </button>
-
-      <!-- Recipes -->
-      <div class="sb-section-label">RECIPES</div>
-      <button class="sb-btn" onclick="closeSidebar();openRecipes('muscle')">
-        <span class="sb-icon">🏋️</span><span>Building Muscle</span>
+      <button class="sb-btn" onclick="closeSidebar();showPage('more',document.getElementById('nav-more'));setTimeout(function(){document.getElementById('moodTracker')&&document.getElementById('moodTracker').scrollIntoView({behavior:'smooth'})},300)">
+        <span class="sb-icon">🧠</span><span>Mood Tracker</span>
       </button>
-      <button class="sb-btn" onclick="closeSidebar();openRecipes('keto')">
-        <span class="sb-icon">🥑</span><span>Keto</span>
-      </button>
-      <button class="sb-btn" onclick="closeSidebar();openRecipes('vegan')">
-        <span class="sb-icon">🌱</span><span>Vegan</span>
+      <button class="sb-btn" onclick="closeSidebar();openDevicesModal()">
+        <span class="sb-icon">⌚</span><span>Connect Devices</span>
       </button>
 
-      <!-- Tools -->
-      <div class="sb-section-label">TOOLS</div>
+      <!-- 🏋️ TRAINING -->
+      <div class="sb-section-label">🏋️ TRAINING</div>
+      <button class="sb-btn" onclick="closeSidebar();showPage('workout',document.getElementById('nav-workout'))">
+        <span class="sb-icon">💪</span><span>Workouts</span>
+      </button>
       <button class="sb-btn" onclick="closeSidebar();openFastModal()">
         <span class="sb-icon">⏱</span><span>Intermittent Fasting</span>
       </button>
-      <button class="sb-btn" onclick="closeSidebar();openDailyReport()">
-        <span class="sb-icon">📋</span><span>Daily Report</span>
+      <button class="sb-btn" onclick="closeSidebar();showRecoveryTips()">
+        <span class="sb-icon">🧊</span><span>Recovery Tips</span>
       </button>
-      <button class="sb-btn" onclick="closeSidebar();showPage('progress',document.getElementById('nav-progress'))">
-        <span class="sb-icon">📈</span><span>Progress</span>
+
+      <!-- 🥗 NUTRITION -->
+      <div class="sb-section-label">🥗 NUTRITION</div>
+      <button class="sb-btn" onclick="closeSidebar();showPage('nutrition',document.getElementById('nav-nutrition'))">
+        <span class="sb-icon">🍎</span><span>Food Log</span>
+      </button>
+      <button class="sb-btn" onclick="closeSidebar();openSupplementDashboard()">
+        <span class="sb-icon">💊</span><span>Supplements</span>
+      </button>
+      <button class="sb-btn" onclick="closeSidebar();openWaterGoalModal()">
+        <span class="sb-icon">💧</span><span>Hydration Goal</span>
+      </button>
+
+      <!-- ⚙️ ACCOUNT -->
+      <div class="sb-section-label">⚙️ ACCOUNT</div>
+      <button class="sb-btn" onclick="closeSidebar();showPage('profile',document.getElementById('nav-more'))">
+        <span class="sb-icon">👤</span><span>Profile</span>
+      </button>
+      <button class="sb-btn" onclick="closeSidebar();openPaywall()">
+        <span class="sb-icon">👑</span><span>Upgrade to PRO</span>
+        <span style="margin-left:auto;font-size:.6rem;font-weight:700;background:linear-gradient(135deg,var(--cal),#FF4B4B);color:#fff;padding:2px 8px;border-radius:20px">PRO</span>
       </button>
     </div>
 
