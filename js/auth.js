@@ -598,6 +598,7 @@ var AUTH = (function () {
 
       return 'pending';
     },
+    },
 
     7: function () {
       if (!state.tnc.tos || !state.tnc.disclaimer) {
@@ -656,14 +657,10 @@ var AUTH = (function () {
     showErr('stepError', '');
 
     var err = validators[state.step] ? validators[state.step]() : null;
-    // 'pending' = async op in flight (Supabase signup) — don't block navigation
-    if (err && err !== 'pending') {
+    if (err) {
       // showErr('stepError', err); — field-level errors already shown
       return;
     }
-
-    // If async op is pending, it will call goTo(8) itself when done
-    if (err === 'pending') return;
 
     if (state.step < STEPS) {
       goTo(state.step + 1);
@@ -712,10 +709,22 @@ var AUTH = (function () {
       switch (action) {
         case 'ob-next':    next();  break;
         case 'ob-back':    back();  break;
-        case 'act-prev':   renderActivityCard(Math.max(0, (window.U.actIdx || 2) - 1)); saveDraft(); break;
-        case 'act-next':   renderActivityCard(Math.min(5, (window.U.actIdx || 2) + 1)); saveDraft(); break;
-        case 'rate-dec':   adjustRate(-1); break;
-        case 'rate-inc':   adjustRate(+1); break;
+        case 'act-prev':
+          renderActivityCard(Math.max(0, (window.U.actIdx || 2) - 1));
+          requestAnimationFrame(saveDraft);  // defer I/O so tap feels instant
+          break;
+        case 'act-next':
+          renderActivityCard(Math.min(5, (window.U.actIdx || 2) + 1));
+          requestAnimationFrame(saveDraft);
+          break;
+        case 'rate-dec':
+          adjustRate(-1);
+          requestAnimationFrame(saveDraft);
+          break;
+        case 'rate-inc':
+          adjustRate(+1);
+          requestAnimationFrame(saveDraft);
+          break;
         case 'resend-email': resendEmail(); break;
         case 'continue-anyway': finalize(); break;
       }
