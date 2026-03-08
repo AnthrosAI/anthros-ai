@@ -8,7 +8,7 @@
 // ── CONSTANTS ──────────────────────────────────────────────
 const GROQ_KEY = '';
 const GROQ_URL  = 'https://api.groq.com/openai/v1/chat/completions';
-const GROQ_MODEL = 'compound-beta';  // web search + code execution built-in
+const GROQ_MODEL = 'llama-3.3-70b-versatile'; // confirmed working on Groq API
 const AI_FREE_LIMIT = 5;
 
 // ── STATE ──────────────────────────────────────────────────
