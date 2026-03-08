@@ -3672,11 +3672,9 @@ html.dark  .wday-track { stroke: rgba(255,255,255,.1); }
 }
 /* Today selected: solid orange pill */
 .wday.today.selected .wday-num {
-  color: #fff;
-  background: var(--cal);
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  font-size: .8rem;
+  color: var(--cal);   /* orange number, no background box */
+  font-weight: 900;
+  font-size: .82rem;
 }
 
 /* Selected (non-today) */
@@ -3798,3 +3796,77 @@ html.light .sb-section-label { color: var(--muted); }
   letter-spacing: .5px;
   text-transform: uppercase;
 }
+
+
+/* ═══════════════════════════════════════════════════════════════
+   DARK MODE — Comprehensive text & background overrides
+   All rules use html.dark or html.light prefix for specificity.
+   Belt-and-suspenders: catches any element that inherits wrong color.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Sidebar ── */
+html.dark .sb-btn            { color: var(--text) !important; }
+html.dark .sb-section-label  { color: var(--muted2) !important; }
+html.dark .sb-icon           { opacity: 1; }
+html.dark #sidebarUserName   { color: var(--muted2); }
+
+/* ── More / Settings page ── */
+html.dark .mi-name           { color: var(--text) !important; }
+html.dark .mi-sub            { color: var(--muted2) !important; }
+html.dark .mi-arrow          { color: var(--muted) !important; }
+html.dark .more-name         { color: var(--text) !important; }
+html.dark .more-email        { color: var(--muted2) !important; }
+html.dark .more-item         { background: transparent; }
+html.dark .more-item:active  { background: rgba(255,255,255,.05); }
+
+/* ── Dashboard text ── */
+html.dark .greeting h2       { color: var(--text) !important; }
+html.dark .greeting p        { color: var(--muted2) !important; }
+html.dark .stat4-lbl         { color: var(--muted2) !important; }
+html.dark .stat4-val         { color: var(--text) !important; }
+html.dark .mbar-name         { color: var(--text) !important; }
+html.dark .kn-name           { color: var(--text) !important; }
+html.dark .meal-section-name { color: var(--text) !important; }
+html.dark .meal-section-cals { color: var(--muted2) !important; }
+html.dark .steps-count       { color: var(--text) !important; }
+html.dark .steps-lbl         { color: var(--muted2) !important; }
+html.dark .week-chart-title  { color: var(--text) !important; }
+
+/* ── AI Coach page ── */
+html.dark .ai-info h3        { color: var(--text) !important; }
+html.dark .ai-context        { background: rgba(255,255,255,.08); color: var(--muted2); border-color: var(--border); }
+html.dark .qchip             { background: var(--card2); border-color: var(--border); color: var(--muted2); }
+html.dark .ai-limit-bar span { color: var(--muted2); }
+html.dark .msg-ai .m-text    { color: var(--text); }
+html.dark .msg-user .m-text  { color: #fff; }
+
+/* ── Calendar circles (wday) ── */
+html.dark  .wday-letter           { color: var(--muted); }
+html.dark  .wday-num              { color: var(--text); }
+html.dark  .wday.today .wday-num  { color: var(--cal); }
+html.dark  .wday.today.selected .wday-num { color: var(--cal); font-weight: 900; }
+html.dark  .wday.selected:not(.today) .wday-num { color: #F2F2F8; font-weight: 800; }
+html.dark  .wday.future .wday-num { color: var(--muted); }
+
+html.light .wday-letter           { color: var(--muted); }
+html.light .wday-num              { color: var(--text); }
+html.light .wday.today .wday-num  { color: var(--cal); }
+html.light .wday.today.selected .wday-num { color: var(--cal); font-weight: 900; }
+html.light .wday.selected:not(.today) .wday-num { color: #1C1C1E; font-weight: 800; }
+html.light .wday.future .wday-num { color: var(--muted); }
+
+/* ── Week strip header ── */
+html.dark  #weekStripMonthLabel { color: var(--text); }
+html.light #weekStripMonthLabel { color: var(--text); }
+
+/* ── Profile page inputs ── */
+html.dark .prof-field        { color: var(--text); background: var(--card2); border-color: var(--border2); }
+html.dark .prof-label        { color: var(--muted2); }
+
+/* ── Progress page ── */
+html.dark .prog-title        { color: var(--text); }
+html.dark .prog-sub          { color: var(--muted2); }
+
+/* ── Onboarding ── */
+html.dark .ob-field          { color: var(--text); background: var(--card2); border-color: var(--border2); }
+html.dark .ob-field::placeholder { color: var(--muted); }
