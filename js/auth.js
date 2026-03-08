@@ -583,16 +583,33 @@ var AUTH = (function () {
       })
       .then(function(r) { return r.json(); })
       .then(function(data) {
-        if (data.error) {
-          showErr('accountError', data.error.message || 'Signup failed.');
+        console.log('[Supabase signup response]', JSON.stringify(data));
+
+        // Supabase error object
+        if (data.error || data.msg) {
+          var msg = (data.error && data.error.message) || data.msg || 'Signup failed.';
+          showErr('accountError', msg);
           if (btn) { btn.disabled = false; btn.textContent = 'Create Account →'; }
           return;
         }
-        if (data.user) window.U._uid = data.user.id;
-        goTo(8);
+
+        // Supabase can return { user, session } or { id, email } depending on version
+        var userId = (data.user && data.user.id) || data.id;
+        if (userId) window.U._uid = userId;
+
+        // If user already confirmed (e.g. re-signup), session will be present → go straight to app
+        var hasSession = data.session || (data.user && data.user.confirmed_at);
+        if (hasSession) {
+          console.log('[Supabase] User already confirmed, launching app directly');
+          window.U.email = (data.user && data.user.email) || window.U.email;
+          goTo(8); // still show verify screen, user can "Continue Anyway"
+        } else {
+          goTo(8); // email sent — show verify screen
+        }
       })
-      .catch(function() {
-        showErr('accountError', 'Network error. Please try again.');
+      .catch(function(err) {
+        console.error('[Supabase signup error]', err);
+        showErr('accountError', 'Network error. Check connection and try again.');
         if (btn) { btn.disabled = false; btn.textContent = 'Create Account →'; }
       });
 
