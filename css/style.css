@@ -3870,3 +3870,69 @@ html.dark .prog-sub          { color: var(--muted2); }
 /* ── Onboarding ── */
 html.dark .ob-field          { color: var(--text); background: var(--card2); border-color: var(--border2); }
 html.dark .ob-field::placeholder { color: var(--muted); }
+
+/* ═══════════════════════════════════════════════════════════
+   OTP VERIFICATION BOXES
+   ═══════════════════════════════════════════════════════════ */
+.otp-boxes {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin: 22px 0 6px;
+}
+
+.otp-box {
+  width: 46px;
+  height: 58px;
+  border-radius: 14px;
+  border: 2px solid var(--border, #e5e7eb);
+  background: var(--card, #fff);
+  color: var(--text, #1C1C1E);
+  font-size: 1.6rem;
+  font-weight: 800;
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  text-align: center;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  caret-color: transparent;
+  transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.otp-box:focus {
+  border-color: var(--cal, #FF8A00);
+  box-shadow: 0 0 0 3px rgba(255,138,0,.18);
+}
+
+.otp-box.filled {
+  border-color: var(--cal, #FF8A00);
+  background: rgba(255,138,0,.07);
+}
+
+.otp-box.error {
+  border-color: #ef4444;
+  animation: otp-shake .45s ease;
+}
+
+@keyframes otp-shake {
+  0%,100% { transform: translateX(0);   }
+  15%      { transform: translateX(-7px);}
+  35%      { transform: translateX(7px); }
+  55%      { transform: translateX(-5px);}
+  75%      { transform: translateX(5px); }
+  90%      { transform: translateX(-2px);}
+}
+
+/* Dark mode overrides */
+html.dark .otp-box {
+  background: var(--card, #18181F);
+  border-color: rgba(255,255,255,.13);
+  color: var(--text, #F2F2F8);
+}
+html.dark .otp-box:focus {
+  border-color: var(--cal, #FF8A00);
+  box-shadow: 0 0 0 3px rgba(255,138,0,.22);
+}
+html.dark .otp-box.filled {
+  background: rgba(255,138,0,.12);
+}
