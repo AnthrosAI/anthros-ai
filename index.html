@@ -406,17 +406,25 @@
         </div>
       </div>
 
+      <div class="ob-step-error" id="verifyError" role="alert" style="display:none;margin:10px 0 4px;"></div>
+
       <div class="ob-verify-actions">
         <button class="ob-verify-btn-ghost" id="resend-email-btn" data-action="resend-email">
           Resend Email
         </button>
-        <button class="ob-verify-btn-primary" data-action="continue-anyway">
-          Continue Anyway →
+        <button class="ob-verify-btn-primary" id="check-verified-btn" data-action="check-verified">
+          I've Verified ✓
+        </button>
+      </div>
+
+      <div style="text-align:center;margin-top:10px;">
+        <button class="ob-verify-btn-ghost" style="font-size:.75rem;opacity:.6;" data-action="continue-anyway">
+          Skip for now →
         </button>
       </div>
 
       <p class="ob-verify-footnote">
-        * You can still use AnthrosAI while awaiting verification. Some features may be limited.
+        * Tap "I've Verified ✓" after clicking the email link. Verification auto-detects in the background.
       </p>
     </div>
 
