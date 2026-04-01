@@ -15,6 +15,38 @@
 'use strict';
 
 /* ═══════════════════════════════════════════════════════════
+   SUPABASE EMAIL CALLBACK DETECTION
+   When the user clicks the verification link in their email,
+   Supabase redirects to our app URL with tokens in the hash:
+   https://ourapp.vercel.app/#access_token=...&type=signup
+   We detect this, store the verified flag in localStorage,
+   then clean the URL. Works for web AND installed iOS PWA
+   (Safari sets localStorage on the same origin, so the PWA
+   polling loop will detect the change via storage events).
+   ═══════════════════════════════════════════════════════════ */
+;(function detectSupabaseCallback() {
+  try {
+    var h = window.location.hash;
+    if (!h || h.indexOf('access_token') === -1) return;
+    var p = {};
+    h.replace(/^#/, '').split('&').forEach(function(s) {
+      var i = s.indexOf('=');
+      if (i > 0) p[decodeURIComponent(s.slice(0, i))] = decodeURIComponent(s.slice(i + 1));
+    });
+    if (p.access_token && (p.type === 'signup' || p.type === 'email_change')) {
+      window._emailVerified    = true;
+      window._supaAccessToken  = p.access_token;
+      try { localStorage.setItem('anthros_email_verified', '1'); } catch (e) {}
+      // Clean hash from URL without triggering a reload
+      if (history.replaceState) {
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+      console.log('[AnthrosAI] ✅ Email verified via callback');
+    }
+  } catch (e) { console.warn('[AnthrosAI] Callback detection error', e); }
+}());
+
+/* ═══════════════════════════════════════════════════════════
    CONSTANTS — self-contained; no dependency on app.js order
    ═══════════════════════════════════════════════════════════ */
 var AUTH = (function () {
@@ -313,6 +345,14 @@ var AUTH = (function () {
 
     8: function () {
       setVal('verifyEmailShow', window.U.email || '—');
+      // If already verified (e.g. re-entered onboarding after clicking link), auto-advance
+      if (window._emailVerified || _getVerifiedFlag()) {
+        window._emailVerified = true;
+        updateVerifyUI(true);
+        setTimeout(function() { finalize(); }, 800);
+        return;
+      }
+      startVerifyPolling();
     }
   };
 
@@ -625,7 +665,15 @@ var AUTH = (function () {
       return null;
     },
 
-    8: function () { return null; } // email verify step — always allow continue
+    8: function () {
+      if (window._emailVerified || _getVerifiedFlag()) {
+        window._emailVerified = true;
+        showErr('verifyError', '');
+        return null; // ✅ Verified — allow through
+      }
+      showErr('verifyError', '⚠️ Please verify your email first — click the link we sent you, then tap "I\'ve Verified ✓" below.');
+      return 'Email not verified.';
+    }
   };
 
   /* ─────────────────────────────────────────────────────────
@@ -747,7 +795,25 @@ var AUTH = (function () {
           requestAnimationFrame(saveDraft);
           break;
         case 'resend-email': resendEmail(); break;
-        case 'continue-anyway': finalize(); break;
+        case 'check-verified':
+          if (window._emailVerified || _getVerifiedFlag()) {
+            window._emailVerified = true;
+            updateVerifyUI(true);
+            setTimeout(function() { finalize(); }, 1200);
+          } else {
+            showErr('verifyError', '⚠️ Not verified yet — check your inbox and click the link first.');
+          }
+          break;
+        case 'continue-anyway':
+          // Stop polling — user is manually bypassing
+          if (window._verifyPollTimer) { clearInterval(window._verifyPollTimer); window._verifyPollTimer = null; }
+          if (!window._emailVerified && !_getVerifiedFlag()) {
+            // Mark as unverified bypass so app can show banner if needed
+            try { localStorage.setItem('anthros_verify_skipped', '1'); } catch(e) {}
+            console.warn('[AnthrosAI] User bypassed email verification');
+          }
+          finalize();
+          break;
       }
       return;
     }
@@ -844,6 +910,59 @@ var AUTH = (function () {
 
     on('a-name',  function () { window.U.name  = this.value.trim(); });
     on('a-email', function () { window.U.email = this.value.trim(); });
+  }
+
+  /* ─────────────────────────────────────────────────────────
+     EMAIL VERIFICATION HELPERS
+     ───────────────────────────────────────────────────────── */
+  function _getVerifiedFlag() {
+    try { return !!localStorage.getItem('anthros_email_verified'); } catch (e) { return false; }
+  }
+
+  function updateVerifyUI(verified) {
+    var dot    = document.querySelector('#ob-slide-8 .ob-verify-dot');
+    var note   = document.querySelector('#ob-slide-8 .ob-verify-note');
+    var status = document.querySelector('#ob-slide-8 .ob-verify-status');
+    var errEl  = $('verifyError');
+    var chkBtn = $('check-verified-btn');
+    if (verified) {
+      if (dot)    { dot.style.background = '#22c55e'; dot.style.animation = 'none'; }
+      if (note)   note.textContent = '✅ Email verified! Taking you in…';
+      if (status) { status.style.color = '#22c55e'; }
+      if (errEl)  { errEl.textContent = ''; errEl.style.display = 'none'; }
+      if (chkBtn) { chkBtn.textContent = '✅ Verified!'; chkBtn.disabled = true; chkBtn.style.background = '#22c55e'; }
+    }
+  }
+
+  function startVerifyPolling() {
+    // Clear any existing poll
+    if (window._verifyPollTimer) { clearInterval(window._verifyPollTimer); window._verifyPollTimer = null; }
+
+    var attempts = 0;
+    window._verifyPollTimer = setInterval(function() {
+      attempts++;
+      if (attempts > 90) { clearInterval(window._verifyPollTimer); return; } // stop after ~3 min
+      if (window._emailVerified || _getVerifiedFlag()) {
+        clearInterval(window._verifyPollTimer);
+        window._verifyPollTimer = null;
+        window._emailVerified = true;
+        updateVerifyUI(true);
+        setTimeout(function() { finalize(); }, 1200);
+      }
+    }, 2000);
+
+    // Storage event: fires when Safari (same origin) sets the flag after clicking the email link
+    // This is the key mechanism for iOS PWA — Safari sets localStorage, PWA picks it up here
+    function onStorage(e) {
+      if (e.key === 'anthros_email_verified' && e.newValue) {
+        if (window._verifyPollTimer) { clearInterval(window._verifyPollTimer); window._verifyPollTimer = null; }
+        window._emailVerified = true;
+        updateVerifyUI(true);
+        window.removeEventListener('storage', onStorage);
+        setTimeout(function() { finalize(); }, 1200);
+      }
+    }
+    window.addEventListener('storage', onStorage);
   }
 
   /* ─────────────────────────────────────────────────────────
