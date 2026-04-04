@@ -361,11 +361,12 @@ var AUTH = (function () {
     8: function () {
       setVal('verifyEmailShow', window.U.email || '—');
       showErr('verifyError', '');
-      // Hide CTA — OTP auto-submits on last digit
+      // Hide CTA — OTP auto-submits on last digit, no manual Next needed
       var cta = $('obCta');
       if (cta) cta.style.display = 'none';
-      // Send OTP and wire boxes
-      sendOTP();
+      // Signup (step 6) already triggered the "Confirm signup" email with
+      // the 6-digit {{ .Token }} code — do NOT call sendOTP() here as that
+      // fires the "Magic Link" template instead. Just wire boxes + cooldown.
       _wireOTPBoxes();
       _startResendCooldown(60);
     }
