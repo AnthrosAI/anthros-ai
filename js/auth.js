@@ -947,7 +947,14 @@ var AUTH = (function () {
           // Strip non-digits, keep only last char
           var val = this.value.replace(/[^0-9]/g, '');
           this.value = val ? val[val.length - 1] : '';
-          this.classList.toggle('filled', !!this.value);
+          // Inline filled state (orange border + tint)
+          if (this.value) {
+            this.style.borderColor = '#FF8A00';
+            this.style.background  = 'rgba(255,138,0,0.07)';
+          } else {
+            this.style.borderColor = '#e5e7eb';
+            this.style.background  = '#fff';
+          }
           // Auto-advance to next box
           if (this.value && idx < 5) {
             var next = $('otp' + (idx + 1));
@@ -957,11 +964,25 @@ var AUTH = (function () {
           if (idx === 5 && this.value) _autoVerifyOTP();
         });
 
+        box.addEventListener('focus', function() {
+          this.style.borderColor = '#FF8A00';
+          this.style.boxShadow   = '0 0 0 3px rgba(255,138,0,0.18)';
+        });
+        box.addEventListener('blur', function() {
+          this.style.boxShadow = '';
+          if (!this.value) this.style.borderColor = '#e5e7eb';
+        });
+
         box.addEventListener('keydown', function(e) {
           // Backspace on empty box → go to previous
           if (e.key === 'Backspace' && !this.value && idx > 0) {
             var prev = $('otp' + (idx - 1));
-            if (prev) { prev.value = ''; prev.classList.remove('filled'); prev.focus(); }
+            if (prev) {
+              prev.value = '';
+              prev.style.borderColor = '#e5e7eb';
+              prev.style.background  = '#fff';
+              prev.focus();
+            }
           }
         });
       }(i));
@@ -977,8 +998,15 @@ var AUTH = (function () {
         for (var j = 0; j < 6; j++) {
           var b = $('otp' + j);
           if (!b) continue;
-          if (j < text.length) { b.value = text[j]; b.classList.add('filled'); }
-          else { b.value = ''; b.classList.remove('filled'); }
+          if (j < text.length) {
+            b.value = text[j];
+            b.style.borderColor = '#FF8A00';
+            b.style.background  = 'rgba(255,138,0,0.07)';
+          } else {
+            b.value = '';
+            b.style.borderColor = '#e5e7eb';
+            b.style.background  = '#fff';
+          }
         }
         if (text.length === 6) { _autoVerifyOTP(); }
         else if (text.length > 0) { var nb = $('otp' + text.length); if (nb) nb.focus(); }
@@ -1047,16 +1075,31 @@ var AUTH = (function () {
   function _clearOTPBoxes() {
     for (var i = 0; i < 6; i++) {
       var b = $('otp' + i);
-      if (b) { b.value = ''; b.classList.remove('filled', 'error'); }
+      if (!b) continue;
+      b.value = '';
+      b.style.borderColor = '#e5e7eb';
+      b.style.background  = '#fff';
+      b.style.animation   = '';
     }
   }
 
   function _shakeOTPBoxes() {
+    // Inject keyframe once if not already present
+    if (!document.getElementById('otp-shake-style')) {
+      var s = document.createElement('style');
+      s.id = 'otp-shake-style';
+      s.textContent = '@keyframes otpShake{0%,100%{transform:translateX(0)}15%{transform:translateX(-7px)}35%{transform:translateX(7px)}55%{transform:translateX(-5px)}75%{transform:translateX(4px)}90%{transform:translateX(-2px)}}';
+      document.head.appendChild(s);
+    }
     for (var i = 0; i < 6; i++) {
       (function(box) {
         if (!box) return;
-        box.classList.add('error');
-        setTimeout(function() { box.classList.remove('error'); }, 600);
+        box.style.borderColor = '#ef4444';
+        box.style.background  = 'rgba(239,68,68,0.07)';
+        box.style.animation   = 'otpShake 0.45s ease';
+        setTimeout(function() {
+          box.style.animation = '';
+        }, 500);
       }($('otp' + i)));
     }
   }
