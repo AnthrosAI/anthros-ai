@@ -353,9 +353,11 @@ var AUTH = (function () {
 
     7: function () {
       renderTnc();
-      // Restore CTA if user came back from step 8
+      // Restore CTA when coming back from step 8
       var cta = $('obCta');
       if (cta) cta.style.display = '';
+      // Reset OTP sent flag so re-entering step 8 sends fresh code
+      window._otpSent = false;
     },
 
     8: function () {
@@ -364,11 +366,15 @@ var AUTH = (function () {
       // Hide CTA — OTP auto-submits on last digit, no manual Next needed
       var cta = $('obCta');
       if (cta) cta.style.display = 'none';
-      // Signup (step 6) already triggered the "Confirm signup" email with
-      // the 6-digit {{ .Token }} code — do NOT call sendOTP() here as that
-      // fires the "Magic Link" template instead. Just wire boxes + cooldown.
+      // Wire boxes first (safe to call multiple times, guarded by _otpWired)
       _wireOTPBoxes();
-      _startResendCooldown(60);
+      // Send OTP only on first visit to this step (not on back→forward re-entry)
+      // Uses /auth/v1/otp → "Magic Link" template (edit THAT template in Supabase)
+      if (!window._otpSent) {
+        window._otpSent = true;
+        sendOTP();
+        _startResendCooldown(60);
+      }
     }
   };
 
@@ -910,6 +916,9 @@ var AUTH = (function () {
   function sendOTP() {
     var email = window.U.email;
     if (!email) return;
+    // /auth/v1/otp sends a 6-digit code via the "Magic Link" email template.
+    // Edit the "Magic Link" template in Supabase → Auth → Email Templates.
+    // The verify call below uses type:'email' to match this flow.
     fetch(SUPA_URL + '/auth/v1/otp', {
       method: 'POST',
       headers: SUPA_HDR,
@@ -990,7 +999,7 @@ var AUTH = (function () {
     fetch(SUPA_URL + '/auth/v1/verify', {
       method: 'POST',
       headers: SUPA_HDR,
-      body: JSON.stringify({ type: 'signup', email: window.U.email, token: code })
+      body: JSON.stringify({ type: 'email', email: window.U.email, token: code })
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
@@ -1065,7 +1074,7 @@ var AUTH = (function () {
     fetch(SUPA_URL + '/auth/v1/resend', {
       method: 'POST',
       headers: SUPA_HDR,
-      body: JSON.stringify({ type: 'signup', email: email })
+      body: JSON.stringify({ type: 'email', email: email })
     })
     .then(function() {
       _clearOTPBoxes();
