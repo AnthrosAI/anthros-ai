@@ -393,30 +393,41 @@
     <div class="ob-slide" id="ob-slide-8">
       <div class="ob-slide-icon"><span>✉️</span></div>
       <div class="ob-h1">Enter Your<br><span class="hl">Code</span></div>
-      <div class="ob-p">We sent a 6-digit code to</div>
-      <div class="ob-verify-email" id="verifyEmailShow" style="text-align:center;font-weight:700;color:var(--cal,#FF8A00);margin-bottom:4px;">—</div>
+      <div class="ob-p" style="margin-bottom:2px;">We sent a 6-digit code to</div>
+      <div id="verifyEmailShow" style="text-align:center;font-weight:700;font-size:.95rem;color:var(--cal,#FF8A00);margin-bottom:20px;">—</div>
 
-      <!-- 6 OTP boxes -->
-      <div class="otp-boxes" id="otpBoxes">
-        <input class="otp-box" id="otp0" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code">
-        <input class="otp-box" id="otp1" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1">
-        <input class="otp-box" id="otp2" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1">
-        <input class="otp-box" id="otp3" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1">
-        <input class="otp-box" id="otp4" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1">
-        <input class="otp-box" id="otp5" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1">
+      <!-- 6 OTP boxes — inline styles override clipping from ob-slides-wrap overflow:hidden -->
+      <div id="otpBoxes" style="display:flex;gap:8px;justify-content:center;align-items:center;width:100%;box-sizing:border-box;padding:0 2px;margin-bottom:10px;">
+        <input id="otp0" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" autocomplete="one-time-code"
+          style="width:44px;height:52px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;color:#1c1c1e;font-size:1.5rem;font-weight:800;text-align:center;outline:none;-webkit-appearance:none;flex-shrink:0;box-sizing:border-box;font-family:-apple-system,'SF Pro Display',sans-serif;">
+        <input id="otp1" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+          style="width:44px;height:52px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;color:#1c1c1e;font-size:1.5rem;font-weight:800;text-align:center;outline:none;-webkit-appearance:none;flex-shrink:0;box-sizing:border-box;font-family:-apple-system,'SF Pro Display',sans-serif;">
+        <input id="otp2" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+          style="width:44px;height:52px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;color:#1c1c1e;font-size:1.5rem;font-weight:800;text-align:center;outline:none;-webkit-appearance:none;flex-shrink:0;box-sizing:border-box;font-family:-apple-system,'SF Pro Display',sans-serif;">
+        <input id="otp3" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+          style="width:44px;height:52px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;color:#1c1c1e;font-size:1.5rem;font-weight:800;text-align:center;outline:none;-webkit-appearance:none;flex-shrink:0;box-sizing:border-box;font-family:-apple-system,'SF Pro Display',sans-serif;">
+        <input id="otp4" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+          style="width:44px;height:52px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;color:#1c1c1e;font-size:1.5rem;font-weight:800;text-align:center;outline:none;-webkit-appearance:none;flex-shrink:0;box-sizing:border-box;font-family:-apple-system,'SF Pro Display',sans-serif;">
+        <input id="otp5" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1"
+          style="width:44px;height:52px;border-radius:12px;border:2px solid #e5e7eb;background:#fff;color:#1c1c1e;font-size:1.5rem;font-weight:800;text-align:center;outline:none;-webkit-appearance:none;flex-shrink:0;box-sizing:border-box;font-family:-apple-system,'SF Pro Display',sans-serif;">
       </div>
 
-      <div class="ob-step-error" id="verifyError" role="alert" style="min-height:20px;text-align:center;margin:8px 0;"></div>
-      <div id="verifySuccess" style="display:none;text-align:center;color:#22c55e;font-weight:600;font-size:.95rem;margin:8px 0;">✅ Verified! Entering AnthrosAI…</div>
+      <div id="verifyError" role="alert" style="min-height:18px;text-align:center;margin:6px 0;font-size:.82rem;color:#ef4444;font-weight:500;"></div>
+      <div id="verifySuccess" style="display:none;text-align:center;color:#22c55e;font-weight:600;font-size:.92rem;margin:6px 0;">✅ Verified! Entering AnthrosAI…</div>
 
-      <div style="text-align:center;margin-top:18px;">
-        <button class="ob-verify-btn-ghost" id="resend-email-btn" data-action="resend-email">
+      <div style="text-align:center;margin-top:20px;">
+        <button class="ob-verify-btn-ghost" id="resend-email-btn" data-action="resend-email"
+          style="font-size:.9rem;padding:12px 28px;">
           Resend Code
         </button>
-        <div id="resendCooldown" style="display:none;font-size:.72rem;color:var(--muted2,#888);margin-top:6px;">
+        <div id="resendCooldown" style="display:none;font-size:.72rem;color:#888;margin-top:8px;">
           Resend available in <span id="cooldownSecs">60</span>s
         </div>
       </div>
+
+      <p style="text-align:center;font-size:.72rem;color:#aaa;margin-top:16px;line-height:1.5;">
+        ← Tap the back arrow above to review Terms &amp; Conditions
+      </p>
     </div>
 </div><!-- /ob-slides -->
   </div><!-- /ob-slides-wrap -->
